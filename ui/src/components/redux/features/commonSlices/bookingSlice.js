@@ -138,15 +138,7 @@ const bookingSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      // .addCase(updateBookingStatus.fulfilled, (state, { payload }) => {
-      //   const index = state.bookings.findIndex(
-      //     (b) => b._id === payload.booking._id
-      //   );
-      //   if (index !== -1) {
-      //     state.bookings[index].status = payload.booking.status;
-      //   }
-      //   state.isLoading = false;
-      // })
+
       .addCase(updateBookingStatus.fulfilled, (state, { payload }) => {
         const updatedBooking = payload.booking;
         // If the booking is canceled, remove it from the bookings list
