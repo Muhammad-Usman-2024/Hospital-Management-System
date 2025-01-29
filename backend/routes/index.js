@@ -60,7 +60,7 @@ router.put(
   updatePatientProfile
 );
 
-// ---- Verify Tokens of Admin,Doctor and Patient ----
+// ----- Verify Tokens of Admin,Doctor and Patient -----
 router.get("/admin-verify", adminAuthToken, (req, res) => {
   res.status(200).json({ isAuthenticated: true });
 });
