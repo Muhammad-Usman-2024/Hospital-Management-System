@@ -102,17 +102,48 @@ export const doctorRegister = createAsyncThunk(
   }
 );
 // -------------Patient Register Thunk------------
+// export const patientRegister = createAsyncThunk(
+//   "patient/register",
+//   async (credentials, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.post(
+//         `${API_URL}/api/patient-register`,
+//         credentials,
+//         {
+//           withCredentials: true,
+//         }
+//       );
+//       return response.data;
+//     } catch (error) {
+//       if (error.response) {
+//         return rejectWithValue(error.response.data.message || "Request failed");
+//       } else if (error.request) {
+//         return rejectWithValue("No response received from the server");
+//       } else {
+//         return rejectWithValue(error.message || "Request failed");
+//       }
+//     }
+//   }
+// );
 export const patientRegister = createAsyncThunk(
   "patient/register",
-  async (credentials, { rejectWithValue }) => {
+  async ({ name, email, password, doctorId = null }, { rejectWithValue }) => {
     try {
+      const payload = {
+        name,
+        email,
+        password,
+        ...(doctorId && { doctorId }), // 🔥 Only include doctorId if it's provided
+      };
+
       const response = await axios.post(
         `${API_URL}/api/patient-register`,
-        credentials,
+        payload,
         {
           withCredentials: true,
         }
       );
+
       return response.data;
     } catch (error) {
       if (error.response) {

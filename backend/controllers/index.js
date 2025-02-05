@@ -15,6 +15,7 @@ import {
   PatientLogin,
   PatientRegister,
   updatePatientProfile,
+  getDoctorRegisteredPatients,
 } from "./patient/patientController.js";
 import {
   BookDoctor,
@@ -34,6 +35,7 @@ export {
   PatientLogin,
   PatientRegister,
   updatePatientProfile,
+  getDoctorRegisteredPatients,
   BookDoctor,
   getBookings,
   updateBookingStatus,

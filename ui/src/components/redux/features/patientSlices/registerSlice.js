@@ -9,17 +9,21 @@ const patientRegisterSlice = createSlice({
       name: "",
       email: "",
       password: "",
+      doctorId: null, // 🔥 doctorId added to state
     },
     isLoading: false,
-    isRegistered: true,
+    isRegistered: false,
     error: null,
   },
   reducers: {
     setForm: (state, action) => {
       state.form = { ...state.form, ...action.payload };
     },
+    setDoctorId: (state, action) => {
+      state.form.doctorId = action.payload; // 🔥 Set doctorId dynamically
+    },
     resetIsRegistered: (state) => {
-      state.isRegistered = false; // Reset isRegistered to false
+      state.isRegistered = false;
     },
   },
   extraReducers: (builder) => {
@@ -43,5 +47,6 @@ const patientRegisterSlice = createSlice({
   },
 });
 
-export const { setForm, resetIsRegistered } = patientRegisterSlice.actions;
+export const { setForm, setDoctorId, resetIsRegistered } =
+  patientRegisterSlice.actions;
 export default patientRegisterSlice.reducer;

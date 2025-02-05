@@ -13,6 +13,7 @@ import patientRegisterReducer from "../features/patientSlices/registerSlice";
 import patientLoginReducer from "../features/patientSlices/loginSlice";
 import patientProfileSettings from "../features/patientSlices/profileSlice";
 import patientDataReducer from "../features/patientSlices/patientDataSlice";
+import doctorPatientsReducer from "../features/patientSlices/doctorPatientSlice";
 //common
 import bookingReducer from "../features/commonSlices/bookingSlice";
 
@@ -30,4 +31,5 @@ export {
   patientProfileSettings,
   bookingReducer,
   patientDataReducer,
+  doctorPatientsReducer,
 };

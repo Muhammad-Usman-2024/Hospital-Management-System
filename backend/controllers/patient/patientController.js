@@ -4,8 +4,47 @@ import { catchAsyncErrors } from "../../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../../middlewares/error.js";
 
 // Register Patient
+// const PatientRegister = catchAsyncErrors(async (req, res, next) => {
+//   const { name, email, password } = req.body;
+
+//   if (!name || !email || !password) {
+//     return next(new ErrorHandler("All fields are required.", 400));
+//   }
+
+//   const existingPatient = await Patient.findOne({ email });
+//   if (existingPatient) {
+//     return next(new ErrorHandler("Patient already registered.", 400));
+//   }
+
+//   const patient = new Patient({
+//     name,
+//     email,
+//     password,
+//   });
+//   await patient.save();
+
+//   // const patientToken = jwt.sign(
+//   //   { id: patient._id, email: patient.email },
+//   //   process.env.PATIENT_ACCESS_TOKEN_SECRET_KEY,
+//   //   { expiresIn: "1d" }
+//   // );
+
+//   // res.cookie("patientToken", patientToken, {
+//   //   httpOnly: true,
+//   //   secure: process.env.NODE_ENV !== "production",
+//   //   sameSite: "lax",
+//   //   path: "/",
+//   //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+//   // });
+
+//   res.status(201).json({
+//     message: "Patient registered successfully.",
+//     success: true,
+//     error: false,
+//   });
+// });
 const PatientRegister = catchAsyncErrors(async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, doctorId } = req.body;
 
   if (!name || !email || !password) {
     return next(new ErrorHandler("All fields are required.", 400));
@@ -16,31 +55,21 @@ const PatientRegister = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Patient already registered.", 400));
   }
 
+  // 👇 Doctor ID tabhi set hoga agar doctor dashboard se register ho raha hai
   const patient = new Patient({
     name,
     email,
     password,
+    registeredBy: doctorId || null, // 🔥 Agar doctorId nahi mila toh NULL save karein
   });
+
   await patient.save();
-
-  // const patientToken = jwt.sign(
-  //   { id: patient._id, email: patient.email },
-  //   process.env.PATIENT_ACCESS_TOKEN_SECRET_KEY,
-  //   { expiresIn: "1d" }
-  // );
-
-  // res.cookie("patientToken", patientToken, {
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV !== "production",
-  //   sameSite: "lax",
-  //   path: "/",
-  //   maxAge: 24 * 60 * 60 * 1000, // 1 day
-  // });
 
   res.status(201).json({
     message: "Patient registered successfully.",
     success: true,
     error: false,
+    patient,
   });
 });
 
@@ -154,4 +183,28 @@ const updatePatientProfile = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-export { PatientRegister, PatientLogin, PatientDetails, updatePatientProfile };
+const getDoctorRegisteredPatients = async (req, res) => {
+  try {
+    const { doctorId } = req.query;
+    console.log(doctorId);
+
+    if (!doctorId) {
+      return res.status(400).json({ message: "Doctor ID is required" });
+    }
+
+    const patients = await Patient.find({ registeredBy: doctorId });
+
+    res.status(200).json(patients);
+  } catch (error) {
+    console.error("Error fetching registered patients:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export {
+  PatientRegister,
+  PatientLogin,
+  PatientDetails,
+  updatePatientProfile,
+  getDoctorRegisteredPatients,
+};

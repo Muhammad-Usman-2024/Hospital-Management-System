@@ -16,6 +16,7 @@ import {
   patientProfileSettings,
   bookingReducer,
   patientDataReducer,
+  doctorPatientsReducer,
 } from "./features/index.js";
 
 // Custom Transform: Persist only the `isAuthenticated` field
@@ -62,6 +63,7 @@ const rootReducer = combineReducers({
   patientRegister: patientRegisterReducer,
   patientProfile: patientProfileSettings,
   patientData: patientDataReducer,
+  doctorPatients: doctorPatientsReducer,
   //common
   doctorBooking: bookingReducer,
 });
@@ -77,6 +79,7 @@ const persistConfig = {
     "adminProfile",
     "doctorBooking",
     "doctorData",
+    "doctorBooking",
   ], // Use the custom transform
 };
 

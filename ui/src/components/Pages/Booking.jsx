@@ -1,79 +1,182 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   createBooking,
+  resetBookingSuccess,
   resetFormData,
   updateFormData,
 } from "../redux/features/commonSlices/bookingSlice";
+import { toast } from "react-toastify";
+import emailjs from "@emailjs/browser";
 
 const Booking = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { doctorId } = useParams();
+
+  // 🌟 Extract Redux State
   const { patientData = {} } = useSelector((state) => state.patientData);
-  const patientId = patientData?._id;
-  const { formData, isLoading, success, error } = useSelector(
+  const { formData, doctorBooking } = useSelector(
     (state) => state.doctorBooking
   );
-  const { doctorId } = useParams(); // Get doctorId from URL
+  const { success, error, isLoading } = doctorBooking;
+  const { doctorsData = [] } = useSelector((state) => state.allDoctorsData);
 
-  // Set the doctorId in the form data when component mounts
+  // 🌟 Derived Data
+  const doctorData =
+    doctorsData.find((doctor) => doctor._id === doctorId) || {};
+  const patientId = patientData?._id;
+  console.log("yaar this is the doctor qamar data", doctorData);
+
+  // 🌟 Set Form Data on Mount
   useEffect(() => {
-    if (doctorId) {
+    if (doctorId)
       dispatch(updateFormData({ name: "doctorId", value: doctorId }));
-    }
-  }, [doctorId, dispatch]);
-  useEffect(() => {
-    if (patientId) {
+    if (patientId)
       dispatch(updateFormData({ name: "patientId", value: patientId }));
-    }
-  }, [patientId, dispatch]);
+  }, [doctorId, patientId, dispatch]);
 
-  // Handle Input Change
+  // 🌟 Handle Input Change
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    dispatch(updateFormData({ name, value }));
+    dispatch(updateFormData({ name: e.target.name, value: e.target.value }));
   };
 
-  // const handleAvatarChange = (e) => {
-  //   const selectedFile = e.target.files[0]; // Store the File object
-  //   setFile(selectedFile);
+  // 🌟 Send Booking Confirmation Email
+  const sendBookingEmail = async () => {
+    if (!doctorData.email) {
+      console.error("Doctor email is missing. Email not sent.");
+      return;
+    }
 
-  //   // Create a URL for displaying the image on the frontend (not to store in Redux)
-  //   const frontendUrl = URL.createObjectURL(selectedFile);
-  //   setFileUrl(frontendUrl);
+    try {
+      await emailjs.send(
+        "service_urux88x", // Service ID
+        "template_zbed7di", // Template ID
+        {
+          from_name: patientData.name,
+          to_name: doctorData.username,
+          from_email: patientData.email,
+          to_email: doctorData.email,
+          message: `You have a new booking with name ${patientData.name}`,
+        },
+        "ehHcxWe090MKl-GFY" // User ID
+      );
 
-  //   // Dispatch to update Redux formData with the file object directly
-  //   dispatch(updateFormData({ name: "patientAvatar", value: selectedFile }));
-  // };
-  // Handle Form Submit
-  const handleSubmit = (e) => {
+      toast.success("Booking confirmation email sent successfully.");
+    } catch (error) {
+      console.error("Email sending error:", error);
+      toast.error("Failed to send confirmation email.");
+    }
+  };
+
+  // 🌟 Handle Form Submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const bookingData = {
       ...formData,
-      bookingDate: new Date().toISOString(), // Automatically set booking date
+      bookingDate: new Date().toISOString(),
     };
-    console.log(formData);
+
     dispatch(createBooking(bookingData));
   };
 
-  // Redirect to dashboard after successful booking (or display error)
-  // useEffect(() => {
-  //   if (formData.doctorId && formData.success) {
-  //     navigate(`/dashboard/${formData.doctorId}`);
-  //   }
-  // }, [formData, navigate]);
-
-  // Reset Form
-  const handleReset = () => {
-    dispatch(resetFormData());
-  };
-
+  // 🌟 Handle Success with useEffect
   useEffect(() => {
     if (success) {
-      navigate("/PatientDashboard");
+      sendBookingEmail();
+      toast.success("Booking submitted successfully.");
+      dispatch(resetFormData()); // ✅ Reset form after success
+      dispatch(resetBookingSuccess()); // ✅ Reset success to prevent auto-toast
+      navigate("/PatientDashboard"); // ✅ Redirect after success
     }
-  }, [success]);
+    if (error) {
+      toast.error("Error while booking.");
+    }
+  }, [success, error, navigate, dispatch]);
+
+  const handleReset = () => dispatch(resetFormData());
+  // const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  // const { doctorId } = useParams();
+
+  // // 🌟 Extract Redux State
+  // const { patientData = {} } = useSelector((state) => state.patientData);
+  // const { formData, doctorBooking } = useSelector(
+  //   (state) => state.doctorBooking
+  // );
+
+  // const { success, error, isLoading } = doctorBooking;
+  // console.log("this is success", success);
+  // toast.success(success);
+  // const { doctorsData = [] } = useSelector((state) => state.allDoctorsData);
+
+  // // 🌟 Derived Data
+  // const doctorData =
+  //   doctorsData.find((doctor) => doctor._id === doctorId) || {};
+  // const patientId = patientData?._id;
+
+  // // 🌟 Set Form Data on Mount
+  // useEffect(() => {
+  //   doctorId && dispatch(updateFormData({ name: "doctorId", value: doctorId }));
+  //   patientId &&
+  //     dispatch(updateFormData({ name: "patientId", value: patientId }));
+  // }, [doctorId, patientId, dispatch]);
+
+  // // 🌟 Handle Input Change
+  // const handleInputChange = (e) =>
+  //   dispatch(updateFormData({ name: e.target.name, value: e.target.value }));
+
+  // // 🌟 Send Booking Confirmation Email
+  // const sendBookingEmail = useCallback(async () => {
+  //   if (!doctorData.email) return;
+  //   try {
+  //     await emailjs.send(
+  //       "service_urux88x", // Service ID
+  //       "template_zbed7di", // Template ID
+  //       {
+  //         from_name: patientData.name,
+  //         to_name: doctorData.username,
+  //         from_email: patientData.email,
+  //         to_email: doctorData.email,
+  //         message: `You have a new booking with name ${patientData.name}`,
+  //       },
+  //       "ehHcxWe090MKl-GFY" // User ID
+  //     );
+  //     toast.success("Booking confirmation email sent successfully.");
+  //   } catch (error) {
+  //     console.error("Email sending error:", error);
+  //     toast.error("Failed to send confirmation email.");
+  //   }
+  // }, [doctorData, patientData]);
+
+  // // 🌟 Handle Form Submission
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   console.log(formData);
+  //   const bookingData = {
+  //     ...formData,
+  //     bookingDate: new Date().toISOString(), // Automatically set booking date
+  //   };
+  //   console.log(formData);
+  //   dispatch(createBooking(bookingData));
+  //   // dispatch(
+  //   //   createBooking({ ...formData, bookingDate: new Date().toISOString() })
+  //   // );
+  //   success && sendBookingEmail();
+  //   success && toast.success("Booking data submitted successfully.");
+  //   error && toast.error("Error while booking data submission.");
+  // };
+
+  // // 🌟 Reset Form
+  // const handleReset = () => dispatch(resetFormData(formData));
+
+  // // 🌟 Redirect on Success
+  // useEffect(() => {
+  //   success && navigate("/PatientDashboard");
+  //   success == false;
+  // }, [success, navigate]);
+
   return (
     <>
       {/* Main Wrapper */}

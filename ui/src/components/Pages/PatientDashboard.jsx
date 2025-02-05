@@ -4,6 +4,7 @@ import { fetchBookings } from "../redux/features/commonSlices/bookingSlice";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs from "dayjs";
 import API_URL from "../../config/apiConfig";
+import PatientSidebar from "./PatientSidebar";
 
 dayjs.extend(customParseFormat);
 
@@ -16,42 +17,16 @@ const PatientDashboard = () => {
   const patientId = patientData?._id; // Adjust this based on your state structure
   console.log("this is the patient  id in patient dashboard:", patientId);
 
-  const { bookings, isLoading } = useSelector((state) => state.doctorBooking);
+  const { patientBookings, isLoading } = useSelector(
+    (state) => state.doctorBooking
+  );
 
   useEffect(() => {
     if (patientData && patientData._id) {
       dispatch(fetchBookings({ userId: patientData._id, role: "patient" }));
     }
   }, [dispatch, patientData._id]);
-  console.log("bookings in patient dashboard:", bookings);
-
-  // // Fetch bookings from Redux state
-  // const {
-  //   bookings,
-  //   isLoading: bookingsLoading,
-  //   error: bookingsError,
-  // } = useSelector((state) => state.fetchPatientBookings);
-
-  // // Fetch all doctor details from state
-  // const {
-  //   doctors,
-  //   isLoading: doctorsLoading,
-  //   error: doctorsError,
-  // } = useSelector((state) => state.doctors);
-
-  // useEffect(() => {
-  //   if (patientId) {
-  //     dispatch(fetchBookingsByPatient(patientId));
-  //   }
-
-  //   // Fetch all doctor details once
-  //   dispatch(fetchDoctorDetails());
-  // }, [dispatch, patientId]);
-
-  // if (bookingsLoading || doctorsLoading)
-  //   return <p>Loading your dashboard...</p>;
-  // if (bookingsError) return <p>Error in bookings: {bookingsError}</p>;
-  // if (doctorsError) return <p>Error in doctors: {doctorsError}</p>;
+  console.log("bookings in patient dashboard:", patientBookings);
 
   return (
     <>
@@ -84,7 +59,7 @@ const PatientDashboard = () => {
             <div className="row">
               {/* Profile Sidebar */}
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
-                <div className="profile-sidebar">
+                {/* <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
                       <a href="#" className="booking-doc-img">
@@ -150,7 +125,8 @@ const PatientDashboard = () => {
                       </ul>
                     </nav>
                   </div>
-                </div>
+                </div> */}
+                <PatientSidebar />
               </div>
               {/* / Profile Sidebar */}
               <div className="col-md-7 col-lg-8 col-xl-9">
@@ -221,7 +197,7 @@ const PatientDashboard = () => {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {bookings.map((booking, index) => (
+                                  {patientBookings.map((booking, index) => (
                                     <tr key={index}>
                                       <td>
                                         <h2 className="table-avatar">

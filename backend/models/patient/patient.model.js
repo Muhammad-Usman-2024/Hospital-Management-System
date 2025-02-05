@@ -54,6 +54,8 @@ const patientSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    registeredBy: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor" }
+
   },
   { timestamps: true }
 );

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { doctorProfileSettings, fetchDoctorData } from "../redux/thunks/thunks";
 import API_URL from "../../config/apiConfig";
+import DoctorSidebar from "./DoctorSidebar";
 
 const DoctorProfileSettings = () => {
   const [fileUrl, setFileUrl] = useState("");
@@ -213,104 +214,7 @@ const DoctorProfileSettings = () => {
             <div className="row">
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
                 {/* Profile Sidebar */}
-                <div className="profile-sidebar">
-                  <div className="widget-profile pro-widget-content">
-                    <div className="profile-info-widget">
-                      <a href="#" className="booking-doc-img">
-                        <img
-                          src={
-                            `${API_URL}/${doctorData.avatar}` ||
-                            "assets/img/doctors/doctor-thumb-02.jpg"
-                          }
-                          alt="User Image"
-                        />
-                      </a>
-                      <div className="profile-det-info">
-                        <h3>{doctorData?.username}</h3>
-                        <div className="patient-details">
-                          <h5 className="mb-0">
-                            {doctorData.servicesAndSpecialization
-                              ?.specializations?.[0] ||
-                              "Specialization not available"}
-                          </h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="dashboard-widget">
-                    <nav className="dashboard-menu">
-                      <ul>
-                        <li>
-                          <a href="DoctorDashboard">
-                            <i className="fas fa-columns" />
-                            <span>Dashboard</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="Appointments">
-                            <i className="fas fa-calendar-check" />
-                            <span>Appointments</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="MyPatients">
-                            <i className="fas fa-user-injured" />
-                            <span>My Patients</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="ScheduleTimings">
-                            <i className="fas fa-hourglass-start" />
-                            <span>Schedule Timings</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="Invoices">
-                            <i className="fas fa-file-invoice" />
-                            <span>Invoices</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="Reviews">
-                            <i className="fas fa-star" />
-                            <span>Reviews</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="ChatDoctor">
-                            <i className="fas fa-comments" />
-                            <span>Message</span>
-                            <small className="unread-msg">23</small>
-                          </a>
-                        </li>
-                        <li className="active">
-                          <a href="DoctorProfileSettings">
-                            <i className="fas fa-user-cog" />
-                            <span>Profile Settings</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="SocialMedia">
-                            <i className="fas fa-share-alt" />
-                            <span>Social Media</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="DoctorChangePassword">
-                            <i className="fas fa-lock" />
-                            <span>Change Password</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="Home">
-                            <i className="fas fa-sign-out-alt" />
-                            <span>Logout</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
-                </div>
+                <DoctorSidebar />
                 {/* /Profile Sidebar */}
               </div>
               <div className="col-md-7 col-lg-8 col-xl-9">

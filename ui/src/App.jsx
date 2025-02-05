@@ -69,6 +69,7 @@ import {
 import AdminProfileSettings from "./components/Pages/AdminProfileSettings";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
+import DoctorRegisteredPtients from "./components/Pages/DoctorRegisteredPatients";
 
 function App() {
   const dispatch = useDispatch();
@@ -136,6 +137,10 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route
+              path="/DoctorPatients"
+              element={<DoctorRegisteredPtients />}
+            />
             <Route path="/AddBilling" element={<AddBilling />} />
             <Route path="/AddPrescription" element={<AddPrescription />} />
             <Route path="/Appointments" element={<Appointments />} />

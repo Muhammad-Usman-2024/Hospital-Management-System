@@ -2,47 +2,109 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   resetIsRegistered,
+  setDoctorId,
   setForm,
 } from "../redux/features/patientSlices/registerSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { patientRegister } from "../redux/thunks/thunks";
 
 const Register = () => {
+  // 🌟 Hooks
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // Extract the "redirect" query parameter
+  // 🌟 Extract "redirect" query parameter
   const searchParams = new URLSearchParams(location.search);
   const redirect = searchParams.get("redirect");
+
+  // 🌟 Redux State
+  const { doctorData = {}, isLoading: doctorIsLoading } = useSelector(
+    (state) => state.doctorData
+  );
 
   const {
     form = {},
     isLoading,
     isRegistered,
   } = useSelector((state) => state.patientRegister);
+
+  // 🌟 Handle Registration Success & Redirect
   useEffect(() => {
     if (isRegistered) {
-      // Redirect based on the "redirect" query parameter
-      if (redirect === "dashboard") {
-        navigate("/DoctorDashboard");
-      } else if (redirect === "search") {
-        navigate("/Search");
-      }
-      // Reset isRegistered after redirection
-      dispatch(resetIsRegistered());
+      navigate(redirect === "dashboard" ? "/DoctorDashboard" : "/Search");
+      dispatch(resetIsRegistered()); // Reset state after redirection
     }
   }, [isRegistered, redirect, navigate, dispatch]);
 
+  // 🌟 Handle Form Input Change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    dispatch(setForm({ [name]: value })); // Update the form in Redux state
+    dispatch(setForm({ [name]: value }));
   };
 
+  // 🌟 Handle Form Submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(patientRegister(form)); // Dispatch the thunk
+
+    // Ensure doctorId is set before registering
+    const updatedForm = {
+      ...form,
+      doctorId: redirect === "dashboard" ? doctorData._id || null : null,
+    };
+
+    console.log("🌟 Final Form Data Before Dispatch:", updatedForm);
+
+    dispatch(setDoctorId(updatedForm.doctorId));
+    dispatch(patientRegister(updatedForm));
   };
+  // const navigate = useNavigate();
+  // const location = useLocation();
+  // const dispatch = useDispatch();
+
+  // // Extract the "redirect" query parameter
+  // const searchParams = new URLSearchParams(location.search);
+  // const redirect = searchParams.get("redirect");
+  // const { doctorData = {}, isLoading: doctorIsLoading } = useSelector(
+  //   (state) => state.doctorData
+  // );
+
+  // const {
+  //   form = {},
+  //   isLoading,
+  //   isRegistered,
+  // } = useSelector((state) => state.patientRegister);
+  // useEffect(() => {
+  //   if (isRegistered) {
+  //     // Redirect based on the "redirect" query parameter
+  //     if (redirect === "dashboard") {
+  //       navigate("/DoctorDashboard");
+  //     } else if (redirect === "search") {
+  //       navigate("/Search");
+  //     }
+  //     // Reset isRegistered after redirection
+  //     dispatch(resetIsRegistered());
+  //   }
+  // }, [isRegistered, redirect, navigate, dispatch]);
+
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   dispatch(setForm({ [name]: value })); // Update the form in Redux state
+  // };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (redirect === "dashboard") {
+  //     console.log("Doctor Dashboard Se Register Ho Raha Hai:", doctorData._id);
+  //     dispatch(setDoctorId(doctorData._id));
+  //   } else {
+  //     console.log("Self Register Ho Raha Hai (doctorId NULL)");
+  //     dispatch(setDoctorId(null));
+  //   }
+
+  //   console.log("Form Data Before Dispatch:", form); // 🔥 Yeh check karo
+  //   dispatch(patientRegister({ ...form }));
+  // };
 
   return (
     <>

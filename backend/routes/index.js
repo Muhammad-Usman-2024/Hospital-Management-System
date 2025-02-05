@@ -15,6 +15,7 @@ import {
   BookDoctor,
   getBookings,
   updateBookingStatus,
+  getDoctorRegisteredPatients,
 } from "../controllers/index.js";
 import {
   adminAuthToken,
@@ -59,6 +60,7 @@ router.put(
   uploadFields.fields([{ name: "avatar", maxCount: 1 }]),
   updatePatientProfile
 );
+router.get("/doctor-registered-patients", getDoctorRegisteredPatients);
 
 // ----- Verify Tokens of Admin,Doctor and Patient -----
 router.get("/admin-verify", adminAuthToken, (req, res) => {

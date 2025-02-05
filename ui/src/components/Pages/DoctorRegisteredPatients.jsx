@@ -1,178 +1,23 @@
-// import React, { useEffect } from "react";
-// import dayjs from "dayjs";
-// import { useDispatch, useSelector } from "react-redux";
-
-// import API_URL from "../../config/apiConfig";
-// import { fetchDoctorData } from "../redux/thunks/thunks";
-// import {
-//   fetchBookings,
-//   updateBookingStatus,
-// } from "../redux/features/commonSlices/bookingSlice";
-// import customParseFormat from "dayjs/plugin/customParseFormat";
-// import { fetchDoctorRegisteredPatients } from "../redux/features/patientSlices/doctorPatientSlice";
-// import DoctorSidebar from "./DoctorSidebar";
-// import { toast } from "react-toastify";
-
-// dayjs.extend(customParseFormat);
-
-// const DoctorDashboard = () => {
-//   const dispatch = useDispatch();
-//   const { doctorBookings, isLoading } = useSelector(
-//     (state) => state.doctorBooking
-//   );
-
-//   const { patients } = useSelector((state) => state.doctorPatients);
-
-//   const { doctorData = {}, isLoading: doctorIsLoading } = useSelector(
-//     (state) => state.doctorData
-//   );
-//   useEffect(() => {
-//     if (doctorData && doctorData._id) {
-//       dispatch(fetchBookings({ userId: doctorData._id, role: "doctor" }));
-//     }
-//   }, [dispatch, doctorData._id]);
-
-//   useEffect(() => {
-//     if (doctorData._id) {
-//       dispatch(fetchDoctorRegisteredPatients(doctorData._id));
-//     }
-//   }, [dispatch, doctorData._id]);
-//   console.log("doctorPatients fetched in doctordahsboard", patients);
-//   // Define the handleBookingStatus function
-//   const handleBookingStatus = async (
-//     bookingId,
-//     patientName,
-//     patientEmail,
-//     status
-//   ) => {
-//     try {
-//       const response = await dispatch(
-//         updateBookingStatus({ bookingId, status })
-//       ).unwrap();
-//       try {
-//         // Use await with emailjs.send to ensure the promise is resolved
-//         const result = await emailjs.send(
-//           "service_n7y6qsb", // Service ID
-//           "template_zbed7di", // Template ID
-//           {
-//             from_name: doctorData.name,
-//             to_name: patientName,
-//             from_email: doctorData.email,
-//             to_email: patientEmail,
-//             message: `Your booking is ${status}`,
-//           },
-//           "sXtf0zA4hLMiMmxp3" // User ID
-//         );
-
-//         toast.success("Your email sended successfully.");
-//       } catch (error) {
-//         console.error("Error sending email:", error);
-//         alert("Something went wrong.");
-//       }
-//       if (status == "Cancelled") {
-//         useEffect(() => {
-//           if (doctorData && doctorData._id) {
-//             dispatch(fetchBookings({ userId: doctorData._id, role: "doctor" }));
-//           }
-//         }, [dispatch, doctorData._id]);
-//       }
-//       alert(`Booking has been ${status.toLowerCase()} successfully.`);
-//       console.log("Updated Booking:", response.booking);
-//     } catch (error) {
-//       console.error("Error updating booking:", error);
-//       alert("Failed to update booking status. Please try again.");
-//     }
-//   };
-
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
-import emailjs from "@emailjs/browser";
-import { toast } from "react-toastify";
-
 import API_URL from "../../config/apiConfig";
-import { fetchDoctorData } from "../redux/thunks/thunks";
-import {
-  fetchBookings,
-  updateBookingStatus,
-} from "../redux/features/commonSlices/bookingSlice";
 import { fetchDoctorRegisteredPatients } from "../redux/features/patientSlices/doctorPatientSlice";
 import DoctorSidebar from "./DoctorSidebar";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 
-dayjs.extend(customParseFormat);
-
-const DoctorDashboard = () => {
+const DoctorRegisteredPtients = () => {
   const dispatch = useDispatch();
-
-  // 🌟 Extract Redux State
-  const { doctorBookings, isLoading } = useSelector(
-    (state) => state.doctorBooking
-  );
-  const { patients } = useSelector((state) => state.doctorPatients);
   const { doctorData = {}, isLoading: doctorIsLoading } = useSelector(
     (state) => state.doctorData
   );
+  const { patients } = useSelector((state) => state.doctorPatients);
 
-  // 🌟 Fetch Bookings & Patients on Doctor Data Change
   useEffect(() => {
-    if (doctorData?._id) {
-      dispatch(fetchBookings({ userId: doctorData._id, role: "doctor" }));
+    if (doctorData._id) {
       dispatch(fetchDoctorRegisteredPatients(doctorData._id));
     }
   }, [dispatch, doctorData._id]);
-
-  console.log("Doctor Patients fetched in DoctorDashboard:", patients);
-
-  // 🌟 Handle Booking Status Update
-  const handleBookingStatus = async (
-    bookingId,
-    patientName,
-    patientEmail,
-    status
-  ) => {
-    try {
-      // ✅ Update booking status in the database
-      const response = await dispatch(
-        updateBookingStatus({ bookingId, status })
-      ).unwrap();
-      console.log("Updated Booking:", response.booking);
-
-      // ✅ Send email using EmailJS
-      if (doctorData.email) {
-        try {
-          const emailResponse = await emailjs.send(
-            "service_urux88x", // Service ID
-            "template_zbed7di", // Template ID
-            {
-              from_name: doctorData.username,
-              to_name: patientName,
-              from_email: doctorData.email,
-              to_email: patientEmail,
-              message: `Your booking status is now: ${status}`,
-            },
-            "ehHcxWe090MKl-GFY" // User ID
-          );
-
-          console.log("EmailJS Response:", emailResponse);
-          toast.success("Booking status email sent successfully.");
-        } catch (emailError) {
-          console.error("Email sending error:", emailError);
-          toast.error("Failed to send status update email.");
-        }
-      }
-
-      // ✅ Refresh Bookings if status is "Cancelled"
-      if (status === "Cancelled" && doctorData._id) {
-        dispatch(fetchBookings({ userId: doctorData._id, role: "doctor" }));
-      }
-
-      toast.success(`Booking has been ${status.toLowerCase()} successfully.`);
-    } catch (error) {
-      console.error("Error updating booking:", error);
-      toast.error("Failed to update booking status. Please try again.");
-    }
-  };
+  console.log("doctorPatients fetched in doctordahsboard", patients);
 
   return (
     <>
@@ -189,11 +34,11 @@ const DoctorDashboard = () => {
                       <a href="Home">Home</a>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Dashboard
+                      Registered Patients
                     </li>
                   </ol>
                 </nav>
-                <h2 className="breadcrumb-title">Dashboard</h2>
+                <h2 className="breadcrumb-title">Doctor Registered Patients</h2>
               </div>
             </div>
           </div>
@@ -284,32 +129,10 @@ const DoctorDashboard = () => {
                 </div>
                 <div className="row">
                   <div className="col-md-12">
-                    <h4 className="mb-4">Patient Appoinment</h4>
+                    <h4 className="mb-4">Registered Patients</h4>
                     <div className="appointment-tab">
-                      {/* Appointment Tab */}
-                      <ul className="nav nav-tabs nav-tabs-solid nav-tabs-rounded">
-                        <li className="nav-item">
-                          <a
-                            className="nav-link active"
-                            href="#upcoming-appointments"
-                            data-toggle="tab"
-                          >
-                            Upcoming
-                          </a>
-                        </li>
-                        <li className="nav-item">
-                          <a
-                            className="nav-link"
-                            href="#today-appointments"
-                            data-toggle="tab"
-                          >
-                            Today
-                          </a>
-                        </li>
-                      </ul>
-                      {/* /Appointment Tab */}
                       <div className="tab-content">
-                        {doctorBookings && (
+                        {patients && (
                           <div
                             className="tab-pane show active"
                             id="upcoming-appointments"
@@ -321,98 +144,17 @@ const DoctorDashboard = () => {
                                     <thead>
                                       <tr>
                                         <th>Patient Name</th>
-                                        <th>Appt Date</th>
-                                        <th>Purpose</th>
-                                        <th>Type</th>
-                                        <th className="text-center">
-                                          Paid Amount
-                                        </th>
-                                        <th />
+                                        <th>Email</th>
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {doctorBookings.length > 0 ? (
-                                        doctorBookings.map((booking) => (
-                                          <tr key={booking._id}>
+                                      {patients.length > 0 ? (
+                                        patients.map((patient) => (
+                                          <tr key={patient._id}>
                                             <td>
-                                              <h2 className="table-avatar">
-                                                <a
-                                                  href={`PatientProfile`}
-                                                  className="avatar avatar-sm mr-2"
-                                                >
-                                                  <img
-                                                    className="avatar-img rounded-circle"
-                                                    src={`${API_URL}/${booking.patientId.avatar}
-                                                      `} // Ensure patient has avatar URL
-                                                    alt="User Image"
-                                                  />
-                                                </a>
-                                                <a href={`PatientProfile}`}>
-                                                  {booking.patientName}
-                                                  <span>
-                                                    {booking.customId}
-                                                  </span>
-                                                </a>
-                                              </h2>
+                                              <h2>{patient.name}</h2>
                                             </td>
-                                            <td>
-                                              {dayjs(
-                                                booking.appointmentDate
-                                              ).format("DD MMM YYYY")}
-                                              <span className="d-block text-info">
-                                                {dayjs(
-                                                  booking.time,
-                                                  "HH:mm"
-                                                ).format("hh:mm A")}
-                                              </span>
-                                            </td>
-                                            <td>{booking.purpose}</td>
-                                            <td>{booking.type}</td>
-                                            <td className="text-center">
-                                              {booking.amount}
-                                            </td>
-                                            <td className="text-right">
-                                              <div className="table-action">
-                                                <a
-                                                  href="javascript:void(0);"
-                                                  className="btn btn-sm bg-info-light"
-                                                >
-                                                  <i className="far fa-eye" />{" "}
-                                                  View
-                                                </a>
-                                                <a
-                                                  href="javascript:void(0);"
-                                                  className="btn btn-sm bg-success-light"
-                                                  onClick={() =>
-                                                    handleBookingStatus(
-                                                      booking._id,
-                                                      booking.patientName,
-                                                      booking.email,
-                                                      "Confirm"
-                                                    )
-                                                  }
-                                                >
-                                                  <i className="fas fa-check" />{" "}
-                                                  Accept
-                                                </a>
-
-                                                <a
-                                                  href="javascript:void(0);"
-                                                  className="btn btn-sm bg-danger-light"
-                                                  onClick={() =>
-                                                    handleBookingStatus(
-                                                      booking._id,
-                                                      booking.patientName,
-                                                      booking.email,
-                                                      "Cancelled"
-                                                    )
-                                                  }
-                                                >
-                                                  <i className="fas fa-trash" />
-                                                  Cancel
-                                                </a>
-                                              </div>
-                                            </td>
+                                            <td>{patient.email}</td>
                                           </tr>
                                         ))
                                       ) : (
@@ -421,7 +163,7 @@ const DoctorDashboard = () => {
                                             colSpan="6"
                                             className="text-center"
                                           >
-                                            No upcoming appointments.
+                                            No Patients Registered.
                                           </td>
                                         </tr>
                                       )}
@@ -786,4 +528,4 @@ const DoctorDashboard = () => {
   );
 };
 
-export default DoctorDashboard;
+export default DoctorRegisteredPtients;
