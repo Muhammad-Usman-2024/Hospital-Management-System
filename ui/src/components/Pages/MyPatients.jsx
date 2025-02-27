@@ -1,7 +1,18 @@
 import React from "react";
 import DoctorSidebar from "./DoctorSidebar";
+import { useFetchBookingsQuery } from "../redux/features/appointments/appointmentApi";
+import { useFetchDoctorDataQuery } from "../redux/features/doctor/doctorApi";
 
 const MyPatients = () => {
+  const { data: singleDoctorData, isLoading: isdoctorFetching } =
+    useFetchDoctorDataQuery();
+  const { data: bookingsData, isLoading: isbookingFetching } =
+    useFetchBookingsQuery({
+      userId: singleDoctorData?.data?._id,
+      role: "allpatients",
+    });
+  const allPatients = bookingsData?.AllPatientsBookings || [];
+  console.log("these are all the patients:", allPatients);
   return (
     <>
       {/* Main Wrapper */}

@@ -1,38 +1,64 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  useFetchDoctorDataQuery,
+  useDoctorLogoutMutation,
+  doctorApi,
+} from "../redux/features/doctor/doctorApi";
 import API_URL from "../../config/apiConfig";
+import { useDispatch } from "react-redux";
 
 const DoctorSidebar = () => {
-  const { doctorData = {} } = useSelector((state) => state.doctorData);
+  const { data: doctorData, isLoading: isDoctorFetching } =
+    useFetchDoctorDataQuery();
+  const [doctorLogout, { isLoading: isLogoutLoading }] =
+    useDoctorLogoutMutation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
-  const [activeLink, setActiveLink] = useState("");
+  const [activeLink, setActiveLink] = useState("/DoctorDashboard");
 
   useEffect(() => {
     setActiveLink(location.pathname);
   }, [location]);
 
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      await doctorLogout().unwrap();
+      // Reset the entire doctorApi state to clear all caches
+      dispatch(doctorApi.util.resetApiState());
+      toast.success("Logged out successfully!");
+      navigate("/DoctorLogin", { replace: true });
+    } catch (error) {
+      console.error("Doctor logout failed:", error);
+      toast.error(error?.data?.message || "Logout failed. Please try again.");
+    }
+  };
+
   return (
     <div className="profile-sidebar">
-      {/* Profile Section */}
       <div className="widget-profile pro-widget-content">
         <div className="profile-info-widget">
           <NavLink to="#" className="booking-doc-img">
-            <img src={`${API_URL}/${doctorData.avatar}`} alt="User Image" />
+            <img
+              src={`${API_URL}/${doctorData?.data?.avatar}`}
+              alt="User Image"
+            />
           </NavLink>
           <div className="profile-det-info">
-            <h3>{doctorData.username}</h3>
+            <h3>{doctorData?.data?.username || "Doctor Name"}</h3>
             <div className="patient-details">
               <h5 className="mb-0">
-                {doctorData.servicesAndSpecialization?.specializations?.[0] ||
-                  "Specialization not available"}
+                {doctorData?.data?.servicesAndSpecialization
+                  ?.specializations?.[0] || "Specialization not available"}
               </h5>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sidebar Navigation */}
       <div className="dashboard-widget">
         <nav className="dashboard-menu">
           <ul className="nav flex-column">
@@ -93,16 +119,29 @@ const DoctorSidebar = () => {
                 icon: "fas fa-lock",
                 label: "Change Password",
               },
-              { path: "/Home", icon: "fas fa-sign-out-alt", label: "Logout" },
+              {
+                path: "/DoctorLogin",
+                icon: "fas fa-sign-out-alt",
+                label: "Logout",
+                onClick: handleLogout,
+              },
             ].map((item) => (
-              <li className="nav-item" key={item.path}>
+              <li className="nav-item" key={item.path || item.label}>
                 <NavLink
                   to={item.path}
                   className={`sidebar-link ${
-                    activeLink === item.path ? "active" : ""
+                    item.label !== "Logout" && activeLink === item.path
+                      ? "active"
+                      : ""
                   }`}
+                  onClick={item.onClick || null}
                 >
-                  <i className={item.icon} /> <span>{item.label}</span>
+                  <i className={item.icon} />{" "}
+                  <span>
+                    {isLogoutLoading && item.label === "Logout"
+                      ? "Logging out..."
+                      : item.label}
+                  </span>
                 </NavLink>
               </li>
             ))}

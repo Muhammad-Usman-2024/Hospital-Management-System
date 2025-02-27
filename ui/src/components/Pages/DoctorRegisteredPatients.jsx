@@ -2,22 +2,24 @@ import React, { useEffect } from "react";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import API_URL from "../../config/apiConfig";
-import { fetchDoctorRegisteredPatients } from "../redux/features/patientSlices/doctorPatientSlice";
 import DoctorSidebar from "./DoctorSidebar";
+import { useFetchDoctorDataQuery } from "../redux/features/doctor/doctorApi";
+import { useFetchDoctorRegisteredPatientsQuery } from "../redux/features/patient/patientApi";
 
 const DoctorRegisteredPtients = () => {
   const dispatch = useDispatch();
-  const { doctorData = {}, isLoading: doctorIsLoading } = useSelector(
-    (state) => state.doctorData
-  );
-  const { patients } = useSelector((state) => state.doctorPatients);
-
-  useEffect(() => {
-    if (doctorData._id) {
-      dispatch(fetchDoctorRegisteredPatients(doctorData._id));
-    }
-  }, [dispatch, doctorData._id]);
-  console.log("doctorPatients fetched in doctordahsboard", patients);
+  const { data: singleDoctorData, isLoading: doctorIsLoading } =
+    useFetchDoctorDataQuery();
+  const doctorData = singleDoctorData?.data;
+  // Skip fetching patients if doctorData._id is not available
+  const {
+    data: doctorRegisteredPatients,
+    isLoading: isPatientsLoading,
+    error,
+  } = useFetchDoctorRegisteredPatientsQuery(doctorData?._id);
+  const patients = doctorRegisteredPatients || [];
+  console.log("this is id:", doctorData._id);
+  console.log("doctor registered patiens are here:", patients, error);
 
   return (
     <>
@@ -74,51 +76,9 @@ const DoctorRegisteredPtients = () => {
                                 </div>
                               </div>
                               <div className="dash-widget-info">
-                                <h6>Total Patient</h6>
-                                <h3>1500</h3>
+                                <h6>Total Registered Patients</h6>
+                                <h3>{patients?.length}</h3>
                                 <p className="text-muted">Till Today</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-md-12 col-lg-4">
-                            <div className="dash-widget dct-border-rht">
-                              <div className="circle-bar circle-bar2">
-                                <div
-                                  className="circle-graph2"
-                                  data-percent={65}
-                                >
-                                  <img
-                                    src="assets/img/icon-02.png"
-                                    className="img-fluid"
-                                    alt="Patient"
-                                  />
-                                </div>
-                              </div>
-                              <div className="dash-widget-info">
-                                <h6>Today Patient</h6>
-                                <h3>160</h3>
-                                <p className="text-muted">06, Nov 2019</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-md-12 col-lg-4">
-                            <div className="dash-widget">
-                              <div className="circle-bar circle-bar3">
-                                <div
-                                  className="circle-graph3"
-                                  data-percent={50}
-                                >
-                                  <img
-                                    src="assets/img/icon-03.png"
-                                    className="img-fluid"
-                                    alt="Patient"
-                                  />
-                                </div>
-                              </div>
-                              <div className="dash-widget-info">
-                                <h6>Appoinments</h6>
-                                <h3>85</h3>
-                                <p className="text-muted">06, Apr 2019</p>
                               </div>
                             </div>
                           </div>

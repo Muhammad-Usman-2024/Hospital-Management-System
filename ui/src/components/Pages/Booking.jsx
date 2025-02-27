@@ -1,33 +1,36 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  createBooking,
-  resetBookingSuccess,
-  resetFormData,
-  updateFormData,
-} from "../redux/features/commonSlices/bookingSlice";
+
 import { toast } from "react-toastify";
 import emailjs from "@emailjs/browser";
+import { useFetchPatientDataQuery } from "../redux/features/patient/patientApi";
+import { useFetchAllDoctorsDataQuery } from "../redux/features/doctor/doctorApi";
+import { useCreateBookingMutation } from "../redux/features/appointments/appointmentApi";
+import {
+  completeBooking,
+  resetFormData,
+  updateFormData,
+} from "../redux/features/appointments/appointmentSlice";
 
 const Booking = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { doctorId } = useParams();
+  const [createBooking, { isLoading, isSuccess, error }] =
+    useCreateBookingMutation();
 
   // 🌟 Extract Redux State
-  const { patientData = {} } = useSelector((state) => state.patientData);
-  const { formData, doctorBooking } = useSelector(
-    (state) => state.doctorBooking
-  );
-  const { success, error, isLoading } = doctorBooking;
-  const { doctorsData = [] } = useSelector((state) => state.allDoctorsData);
-
+  const { data: patientData, isLoading: ispatientFetching } =
+    useFetchPatientDataQuery();
+  const { formData } = useSelector((state) => state.appointment);
+  const { data: allDoctors, isLoading: isallDoctorsFetching } =
+    useFetchAllDoctorsDataQuery();
+  const doctorsData = allDoctors?.data;
   // 🌟 Derived Data
   const doctorData =
     doctorsData.find((doctor) => doctor._id === doctorId) || {};
   const patientId = patientData?._id;
-  console.log("yaar this is the doctor qamar data", doctorData);
 
   // 🌟 Set Form Data on Mount
   useEffect(() => {
@@ -37,22 +40,17 @@ const Booking = () => {
       dispatch(updateFormData({ name: "patientId", value: patientId }));
   }, [doctorId, patientId, dispatch]);
 
-  // 🌟 Handle Input Change
-  const handleInputChange = (e) => {
-    dispatch(updateFormData({ name: e.target.name, value: e.target.value }));
-  };
-
   // 🌟 Send Booking Confirmation Email
   const sendBookingEmail = async () => {
     if (!doctorData.email) {
-      console.error("Doctor email is missing. Email not sent.");
+      console.error("Doctor email missing. Email not sent.");
       return;
     }
 
     try {
       await emailjs.send(
-        "service_urux88x", // Service ID
-        "template_zbed7di", // Template ID
+        "service_urux88x",
+        "template_zbed7di",
         {
           from_name: patientData.name,
           to_name: doctorData.username,
@@ -60,12 +58,11 @@ const Booking = () => {
           to_email: doctorData.email,
           message: `You have a new booking with name ${patientData.name}`,
         },
-        "ehHcxWe090MKl-GFY" // User ID
+        "ehHcxWe090MKl-GFY"
       );
-
-      toast.success("Booking confirmation email sent successfully.");
+      toast.success("Booking confirmation email sent.");
     } catch (error) {
-      console.error("Email sending error:", error);
+      console.error("Email error:", error);
       toast.error("Failed to send confirmation email.");
     }
   };
@@ -78,104 +75,30 @@ const Booking = () => {
       bookingDate: new Date().toISOString(),
     };
 
-    dispatch(createBooking(bookingData));
+    try {
+      await createBooking(bookingData).unwrap();
+      navigate("/PatientDashboard");
+    } catch (err) {
+      console.error("Booking failed:", err);
+    }
   };
 
-  // 🌟 Handle Success with useEffect
+  // 🌟 Handle Success/Error
   useEffect(() => {
-    if (success) {
+    if (isSuccess) {
       sendBookingEmail();
       toast.success("Booking submitted successfully.");
-      dispatch(resetFormData()); // ✅ Reset form after success
-      dispatch(resetBookingSuccess()); // ✅ Reset success to prevent auto-toast
-      navigate("/PatientDashboard"); // ✅ Redirect after success
+      dispatch(completeBooking());
+      dispatch(resetFormData());
     }
     if (error) {
-      toast.error("Error while booking.");
+      toast.error(error.data?.message || "Error while booking.");
     }
-  }, [success, error, navigate, dispatch]);
+  }, [isSuccess, error, dispatch]);
 
-  const handleReset = () => dispatch(resetFormData());
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
-  // const { doctorId } = useParams();
-
-  // // 🌟 Extract Redux State
-  // const { patientData = {} } = useSelector((state) => state.patientData);
-  // const { formData, doctorBooking } = useSelector(
-  //   (state) => state.doctorBooking
-  // );
-
-  // const { success, error, isLoading } = doctorBooking;
-  // console.log("this is success", success);
-  // toast.success(success);
-  // const { doctorsData = [] } = useSelector((state) => state.allDoctorsData);
-
-  // // 🌟 Derived Data
-  // const doctorData =
-  //   doctorsData.find((doctor) => doctor._id === doctorId) || {};
-  // const patientId = patientData?._id;
-
-  // // 🌟 Set Form Data on Mount
-  // useEffect(() => {
-  //   doctorId && dispatch(updateFormData({ name: "doctorId", value: doctorId }));
-  //   patientId &&
-  //     dispatch(updateFormData({ name: "patientId", value: patientId }));
-  // }, [doctorId, patientId, dispatch]);
-
-  // // 🌟 Handle Input Change
-  // const handleInputChange = (e) =>
-  //   dispatch(updateFormData({ name: e.target.name, value: e.target.value }));
-
-  // // 🌟 Send Booking Confirmation Email
-  // const sendBookingEmail = useCallback(async () => {
-  //   if (!doctorData.email) return;
-  //   try {
-  //     await emailjs.send(
-  //       "service_urux88x", // Service ID
-  //       "template_zbed7di", // Template ID
-  //       {
-  //         from_name: patientData.name,
-  //         to_name: doctorData.username,
-  //         from_email: patientData.email,
-  //         to_email: doctorData.email,
-  //         message: `You have a new booking with name ${patientData.name}`,
-  //       },
-  //       "ehHcxWe090MKl-GFY" // User ID
-  //     );
-  //     toast.success("Booking confirmation email sent successfully.");
-  //   } catch (error) {
-  //     console.error("Email sending error:", error);
-  //     toast.error("Failed to send confirmation email.");
-  //   }
-  // }, [doctorData, patientData]);
-
-  // // 🌟 Handle Form Submission
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   console.log(formData);
-  //   const bookingData = {
-  //     ...formData,
-  //     bookingDate: new Date().toISOString(), // Automatically set booking date
-  //   };
-  //   console.log(formData);
-  //   dispatch(createBooking(bookingData));
-  //   // dispatch(
-  //   //   createBooking({ ...formData, bookingDate: new Date().toISOString() })
-  //   // );
-  //   success && sendBookingEmail();
-  //   success && toast.success("Booking data submitted successfully.");
-  //   error && toast.error("Error while booking data submission.");
-  // };
-
-  // // 🌟 Reset Form
-  // const handleReset = () => dispatch(resetFormData(formData));
-
-  // // 🌟 Redirect on Success
-  // useEffect(() => {
-  //   success && navigate("/PatientDashboard");
-  //   success == false;
-  // }, [success, navigate]);
+  const handleInputChange = (e) => {
+    dispatch(updateFormData({ name: e.target.name, value: e.target.value }));
+  };
 
   return (
     <>
@@ -213,61 +136,6 @@ const Booking = () => {
                       <h4 className="mb-4 text-center">
                         Book Doctor Appointment
                       </h4>
-
-                      {/* <div className="form-group">
-                        <div className="change-avatar">
-                          <div className="profile-img">
-                            <img
-                              src={
-                                fileUrl || "/assets/img/patients/patient.jpg" // Replace with admin default image
-                              }
-                              alt="Admin Avatar"
-                            />
-                          </div>
-                          <div className="upload-img">
-                            <div className="change-photo-btn">
-                              <span>
-                                <i className="fa fa-upload" /> Upload Photo
-                              </span>
-                              <input
-                                type="file"
-                                className="upload"
-                                onChange={handleAvatarChange}
-                              />
-                            </div>
-                            <small className="form-text text-muted">
-                              Allowed JPG, GIF or PNG. Max size of 2MB
-                            </small>
-                          </div>
-                        </div>
-                      </div> */}
-
-                      {/* Patient Name */}
-                      <div className="form-group mb-3">
-                        <label>Patient Name:</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="patientName"
-                          value={formData.patientName}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-
-                      {/* Email */}
-                      <div className="form-group mb-3">
-                        <label>Email:</label>
-                        <input
-                          type="email"
-                          className="form-control"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-
                       {/* Amount */}
                       <div className="form-group mb-3">
                         <label>Amount:</label>
@@ -355,20 +223,6 @@ const Booking = () => {
                           onChange={handleInputChange}
                         ></textarea>
                       </div>
-
-                      {/* Phone Number */}
-                      <div className="form-group mb-4">
-                        <label>Phone Number:</label>
-                        <input
-                          type="tel"
-                          className="form-control"
-                          name="phoneNumber"
-                          value={formData.phoneNumber}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-
                       {/* Submit and Reset Buttons */}
                       <div className="d-flex justify-content-between">
                         <button
@@ -378,17 +232,10 @@ const Booking = () => {
                         >
                           {isLoading ? "Booking..." : "Save & Send"}
                         </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={handleReset}
-                        >
-                          Reset Form
-                        </button>
                       </div>
 
                       {/* Success/Error Messages */}
-                      {success && (
+                      {isSuccess && (
                         <p className="mt-3 text-success">
                           Doctor booked successfully!
                         </p>

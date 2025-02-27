@@ -1,110 +1,69 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useFetchDoctorRegisteredPatientsQuery,
+  usePatientRegisterMutation,
+} from "../redux/features/patient/patientApi";
+import { useFetchDoctorDataQuery } from "../redux/features/doctor/doctorApi";
 import {
   resetIsRegistered,
   setDoctorId,
-  setForm,
-} from "../redux/features/patientSlices/registerSlice";
-import { useLocation, useNavigate } from "react-router-dom";
-import { patientRegister } from "../redux/thunks/thunks";
+  setRegisterForm,
+} from "../redux/features/patient/patientSlice";
+import { toast } from "react-toastify";
 
 const Register = () => {
-  // 🌟 Hooks
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-
-  // 🌟 Extract "redirect" query parameter
   const searchParams = new URLSearchParams(location.search);
   const redirect = searchParams.get("redirect");
+  const { data: doctorData, isLoading: isdoctorFetching } =
+    useFetchDoctorDataQuery();
+  const { registerForm, isRegistered } = useSelector((state) => state.patient);
+  const [patientRegister, { isLoading, isSuccess, error }] =
+    usePatientRegisterMutation();
 
-  // 🌟 Redux State
-  const { doctorData = {}, isLoading: doctorIsLoading } = useSelector(
-    (state) => state.doctorData
-  );
-
-  const {
-    form = {},
-    isLoading,
-    isRegistered,
-  } = useSelector((state) => state.patientRegister);
-
-  // 🌟 Handle Registration Success & Redirect
+  const { data: doctorRegistered, refetch } =
+    useFetchDoctorRegisteredPatientsQuery(doctorData?.data?._id);
   useEffect(() => {
     if (isRegistered) {
       navigate(redirect === "dashboard" ? "/DoctorDashboard" : "/Search");
-      dispatch(resetIsRegistered()); // Reset state after redirection
+      dispatch(resetIsRegistered(false));
     }
-  }, [isRegistered, redirect, navigate, dispatch]);
+  }, [isRegistered, navigate, dispatch, redirect]);
 
-  // 🌟 Handle Form Input Change
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Registration successful!");
+      dispatch(resetIsRegistered(true));
+    }
+    if (error) {
+      toast.error(error.data?.message || "Registration failed");
+    }
+  }, [isSuccess, error, dispatch]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    dispatch(setForm({ [name]: value }));
+    dispatch(setRegisterForm({ [name]: value }));
   };
 
-  // 🌟 Handle Form Submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Ensure doctorId is set before registering
-    const updatedForm = {
-      ...form,
-      doctorId: redirect === "dashboard" ? doctorData._id || null : null,
-    };
-
-    console.log("🌟 Final Form Data Before Dispatch:", updatedForm);
-
-    dispatch(setDoctorId(updatedForm.doctorId));
-    dispatch(patientRegister(updatedForm));
+    try {
+      const updatedForm = {
+        ...registerForm,
+        doctorId:
+          redirect === "dashboard" ? doctorData?.data._id || null : null,
+      };
+      dispatch(setDoctorId(updatedForm.doctorId));
+      await patientRegister(updatedForm).unwrap();
+      refetch();
+    } catch (error) {
+      console.error("Registration error:", error);
+    }
   };
-  // const navigate = useNavigate();
-  // const location = useLocation();
-  // const dispatch = useDispatch();
-
-  // // Extract the "redirect" query parameter
-  // const searchParams = new URLSearchParams(location.search);
-  // const redirect = searchParams.get("redirect");
-  // const { doctorData = {}, isLoading: doctorIsLoading } = useSelector(
-  //   (state) => state.doctorData
-  // );
-
-  // const {
-  //   form = {},
-  //   isLoading,
-  //   isRegistered,
-  // } = useSelector((state) => state.patientRegister);
-  // useEffect(() => {
-  //   if (isRegistered) {
-  //     // Redirect based on the "redirect" query parameter
-  //     if (redirect === "dashboard") {
-  //       navigate("/DoctorDashboard");
-  //     } else if (redirect === "search") {
-  //       navigate("/Search");
-  //     }
-  //     // Reset isRegistered after redirection
-  //     dispatch(resetIsRegistered());
-  //   }
-  // }, [isRegistered, redirect, navigate, dispatch]);
-
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   dispatch(setForm({ [name]: value })); // Update the form in Redux state
-  // };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (redirect === "dashboard") {
-  //     console.log("Doctor Dashboard Se Register Ho Raha Hai:", doctorData._id);
-  //     dispatch(setDoctorId(doctorData._id));
-  //   } else {
-  //     console.log("Self Register Ho Raha Hai (doctorId NULL)");
-  //     dispatch(setDoctorId(null));
-  //   }
-
-  //   console.log("Form Data Before Dispatch:", form); // 🔥 Yeh check karo
-  //   dispatch(patientRegister({ ...form }));
-  // };
 
   return (
     <>
@@ -140,7 +99,7 @@ const Register = () => {
                           <input
                             type="text"
                             name="name"
-                            value={form.name}
+                            value={registerForm.name}
                             onChange={handleInputChange}
                             className="form-control floating"
                             required
@@ -151,7 +110,7 @@ const Register = () => {
                           <input
                             type="email"
                             name="email"
-                            value={form.email}
+                            value={registerForm.email}
                             onChange={handleInputChange}
                             className="form-control floating"
                             required
@@ -163,7 +122,7 @@ const Register = () => {
                           <input
                             type="password"
                             name="password"
-                            value={form.password}
+                            value={registerForm.password}
                             onChange={handleInputChange}
                             className="form-control floating"
                             required

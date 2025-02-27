@@ -16,6 +16,9 @@ import {
   getBookings,
   updateBookingStatus,
   getDoctorRegisteredPatients,
+  AdminLogout,
+  DoctorLogout,
+  PatientLogout,
 } from "../controllers/index.js";
 import {
   adminAuthToken,
@@ -27,6 +30,7 @@ const router = express.Router();
 
 // ---- Admin all routes including Post,Get,Put ----
 router.post("/admin-login", AdminLogin);
+router.post("/admin-logout", AdminLogout);
 router.get("/admin-data", adminAuthToken, AdminDetails);
 router.put(
   "/update-admin-profile",
@@ -38,9 +42,10 @@ router.put(
 // ---- Doctor all routes including Post,Get,Put ----
 router.post("/doctor-register", DoctorRegister);
 router.post("/doctor-login", DoctorLogin);
+router.post("/doctor-logout", DoctorLogout);
 router.get("/doctors-data", AllDoctorsData);
 router.get("/doctor-details", doctorAuthToken, DoctorDetails);
-router.patch(
+router.put(
   "/update-doctor-profile",
   doctorAuthToken,
   uploadFields.fields([
@@ -53,6 +58,7 @@ router.patch(
 // ---- Patient all routes including Post,Get,Put ----
 router.post("/patient-register", PatientRegister);
 router.post("/patient-login", PatientLogin);
+router.post("/patient-logout", PatientLogout);
 router.get("/patient-details", patientAuthToken, PatientDetails);
 router.put(
   "/update-patient-profile",

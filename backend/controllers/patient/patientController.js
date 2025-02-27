@@ -4,45 +4,6 @@ import { catchAsyncErrors } from "../../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../../middlewares/error.js";
 
 // Register Patient
-// const PatientRegister = catchAsyncErrors(async (req, res, next) => {
-//   const { name, email, password } = req.body;
-
-//   if (!name || !email || !password) {
-//     return next(new ErrorHandler("All fields are required.", 400));
-//   }
-
-//   const existingPatient = await Patient.findOne({ email });
-//   if (existingPatient) {
-//     return next(new ErrorHandler("Patient already registered.", 400));
-//   }
-
-//   const patient = new Patient({
-//     name,
-//     email,
-//     password,
-//   });
-//   await patient.save();
-
-//   // const patientToken = jwt.sign(
-//   //   { id: patient._id, email: patient.email },
-//   //   process.env.PATIENT_ACCESS_TOKEN_SECRET_KEY,
-//   //   { expiresIn: "1d" }
-//   // );
-
-//   // res.cookie("patientToken", patientToken, {
-//   //   httpOnly: true,
-//   //   secure: process.env.NODE_ENV !== "production",
-//   //   sameSite: "lax",
-//   //   path: "/",
-//   //   maxAge: 24 * 60 * 60 * 1000, // 1 day
-//   // });
-
-//   res.status(201).json({
-//     message: "Patient registered successfully.",
-//     success: true,
-//     error: false,
-//   });
-// });
 const PatientRegister = catchAsyncErrors(async (req, res, next) => {
   const { name, email, password, doctorId } = req.body;
 
@@ -110,6 +71,24 @@ const PatientLogin = catchAsyncErrors(async (req, res, next) => {
     success: true,
     error: false,
     patientToken,
+  });
+});
+
+// Logout Patient
+const PatientLogout = catchAsyncErrors(async (req, res, next) => {
+  // Clear the patientToken cookie
+  res.cookie("patientToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "production", // Match your login settings
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0), // Expire immediately
+  });
+
+  res.status(200).json({
+    success: true,
+    error: false,
+    message: "Patient logged out successfully.",
   });
 });
 
@@ -186,14 +165,14 @@ const updatePatientProfile = catchAsyncErrors(async (req, res, next) => {
 const getDoctorRegisteredPatients = async (req, res) => {
   try {
     const { doctorId } = req.query;
-    console.log(doctorId);
+    console.log("this is the doctorId ", doctorId);
 
     if (!doctorId) {
       return res.status(400).json({ message: "Doctor ID is required" });
     }
 
     const patients = await Patient.find({ registeredBy: doctorId });
-
+    console.log("these are the patients:", patients);
     res.status(200).json(patients);
   } catch (error) {
     console.error("Error fetching registered patients:", error);
@@ -204,6 +183,7 @@ const getDoctorRegisteredPatients = async (req, res) => {
 export {
   PatientRegister,
   PatientLogin,
+  PatientLogout,
   PatientDetails,
   updatePatientProfile,
   getDoctorRegisteredPatients,

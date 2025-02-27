@@ -1,35 +1,50 @@
 import { useDispatch, useSelector } from "react-redux";
-import { setForm } from "../redux/features/adminSlices/loginSlice";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { adminLogin } from "../redux/thunks/thunks";
+import { resetForm, setForm } from "../redux/features/admin/adminSlice";
+import {
+  useAdminLoginMutation,
+  useVerifyAdminTokenQuery,
+} from "../redux/features/admin/adminApi";
+import { toast } from "react-toastify";
 const AdminLogin = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {
-    form = {},
-    isLoading,
-    isAuthenticated,
-  } = useSelector((state) => state.admin);
+  const dispatch = useDispatch();
+  const { form } = useSelector((state) => state.admin);
 
-  //Navigate to Dashboard after loggedIn
+  const [adminLogin, { isLoading }] = useAdminLoginMutation();
+  const { data, isFetching } = useVerifyAdminTokenQuery();
+
+  const isAuthenticated = data?.isAuthenticated || false;
+
+  // Redirect to dashboard if authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/AdminDashboard");
     }
   }, [isAuthenticated, navigate]);
 
-  //Handle Onchange functionality of all input fields
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(setForm({ [name]: value }));
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(adminLogin(form));
+    try {
+      await adminLogin(form).unwrap();
+      dispatch(resetForm());
+      toast.success("Login successful!");
+      navigate("/AdminDashboard");
+    } catch (error) {
+      toast.error(error?.data?.message || "Login failed!");
+    }
   };
+  if (isLoading || isFetching) {
+    return <p>Loading....</p>;
+  }
 
   return (
     <>

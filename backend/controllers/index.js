@@ -1,11 +1,13 @@
 import {
   AdminLogin,
+  AdminLogout,
   AdminDetails,
   updateAdminProfile,
 } from "./admin/adminController.js";
 import {
   DoctorDetails,
   DoctorLogin,
+  DoctorLogout,
   DoctorRegister,
   AllDoctorsData,
   updateDoctorProfile,
@@ -13,6 +15,7 @@ import {
 import {
   PatientDetails,
   PatientLogin,
+  PatientLogout,
   PatientRegister,
   updatePatientProfile,
   getDoctorRegisteredPatients,
@@ -25,14 +28,17 @@ import {
 export {
   AdminDetails,
   AdminLogin,
+  AdminLogout,
   updateAdminProfile,
   DoctorDetails,
   DoctorLogin,
+  DoctorLogout,
   DoctorRegister,
   AllDoctorsData,
   updateDoctorProfile,
   PatientDetails,
   PatientLogin,
+  PatientLogout,
   PatientRegister,
   updatePatientProfile,
   getDoctorRegisteredPatients,

@@ -1,37 +1,50 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setForm } from "../redux/features/doctorSlices/loginSlice";
-import { useNavigate } from "react-router-dom";
-import { doctorLogin } from "../redux/thunks/thunks";
+import { data, useNavigate } from "react-router-dom";
+import {
+  resetLoginForm,
+  setLoginForm,
+} from "../redux/features/doctor/doctorSlice";
+
+import { toast } from "react-toastify";
+import {
+  useDoctorLoginMutation,
+  useVerifyDoctorTokenQuery,
+} from "../redux/features/doctor/doctorApi";
 
 const DoctorLogin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {
-    form = {},
-    isLoading,
-    isAuthenticated,
-    error,
-  } = useSelector((state) => state.doctorLogin);
 
-  //Navigate to Dashboard after loggedIn
+  const { loginForm } = useSelector((state) => state.doctor);
+  const [doctorLogin, { isLoading, isSuccess, error }] =
+    useDoctorLoginMutation();
+
+  // Redirect only on explicit success
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isSuccess) {
+      toast.success("Login successful!");
+      dispatch(resetLoginForm());
       navigate("/DoctorDashboard");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isSuccess, navigate, dispatch]);
 
-  //Handle Onchange functionality of all input fields
+  // Log and show error toast immediately in handleSubmit (like PatientLogin)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await doctorLogin(loginForm).unwrap();
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error(err.data?.message || "Login failed"); // Show toast immediately
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    dispatch(setForm({ [name]: value }));
+    dispatch(setLoginForm({ [name]: value }));
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(doctorLogin(form));
-  };
   return (
     <>
       {/* Main Wrapper */}
@@ -63,7 +76,7 @@ const DoctorLogin = () => {
                             type="email"
                             className="form-control floating"
                             name="email"
-                            value={form.email}
+                            value={loginForm.email}
                             onChange={handleChange}
                             required
                           />
@@ -74,7 +87,7 @@ const DoctorLogin = () => {
                             type="password"
                             className="form-control floating"
                             name="password"
-                            value={form.password}
+                            value={loginForm.password}
                             onChange={handleChange}
                             required
                           />
@@ -92,7 +105,7 @@ const DoctorLogin = () => {
                         >
                           {isLoading ? "Logging in..." : "Login"}
                         </button>
-                        {error && <div className="error-message">{error}</div>}
+
                         <div className="login-or">
                           <span className="or-line" />
                           <span className="span-or">or</span>

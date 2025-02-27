@@ -4,109 +4,85 @@ import {
   deleteFormData,
   uploadImage,
   removeImage,
-} from "../redux/features/doctorSlices/profileSlice";
+  clearFormData,
+} from "../redux/features/doctor/doctorSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { doctorProfileSettings, fetchDoctorData } from "../redux/thunks/thunks";
 import API_URL from "../../config/apiConfig";
 import DoctorSidebar from "./DoctorSidebar";
+import {
+  useFetchDoctorDataQuery,
+  useUpdateDoctorProfileMutation,
+} from "../redux/features/doctor/doctorApi";
+import { useNavigate } from "react-router-dom";
 
 const DoctorProfileSettings = () => {
-  const [fileUrl, setFileUrl] = useState("");
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const formData = useSelector((state) => state.doctorProfile.formData);
-  const { doctorData = {}, isLoading } = useSelector(
-    (state) => state.doctorData
-  );
+  const { formData } = useSelector((state) => state.doctor);
+  const { data: doctorData, isLoading, refetch } = useFetchDoctorDataQuery();
 
-  // Extracting services and specializations from formData
+  const [fileUrl, setFileUrl] = useState("");
   const { services = [], specializations = [] } =
     formData.servicesAndSpecialization || {};
 
   const { education, experience, awards, memberships } = formData;
+  const [updateDoctorProfile, { isLoading: isUpdating }] =
+    useUpdateDoctorProfileMutation();
 
+  // Handle Input Change
   const handleInputChange = (section, key, e, index = null) => {
     const value = e.target.value;
-    dispatch(
-      updateFormData({
-        section: section || null, // If no section, pass null for direct fields
-        key: key.trim(),
-        value,
-        index,
-      })
-    );
+    dispatch(updateFormData({ section, key: key.trim(), value, index }));
   };
 
+  // Handle File Upload
   const handleFileChange = (key, e) => {
     const file = e.target.files[0];
     const frontendUrl = URL.createObjectURL(file);
     setFileUrl(frontendUrl);
-    dispatch(
-      uploadImage({
-        key,
-        file,
-      })
-    );
+    dispatch(uploadImage({ key, file }));
   };
-  const handleClinicImagesUpload = (e) => {
-    const files = Array.from(e.target.files); // Convert FileList to an array
 
-    // Check each file and dispatch to Redux
+  // Handle Multiple Image Uploads
+  const handleClinicImagesUpload = (e) => {
+    const files = Array.from(e.target.files);
     files.forEach((file) => {
       if (file instanceof File) {
-        dispatch(
-          uploadImage({
-            section: "clinicInfo",
-            key: "images",
-            file,
-          })
-        );
-      } else {
-        console.error("Invalid file type:", file);
+        dispatch(uploadImage({ section: "clinicInfo", key: "images", file }));
       }
     });
   };
 
+  // Handle Image Remove
   const handleImageRemove = (section, key, index) => {
-    dispatch(
-      removeImage({
-        section,
-        key,
-        index,
-      })
-    );
+    dispatch(removeImage({ section, key, index }));
   };
 
+  // Handle Pricing Radio Button Change
   const handleRadioChange = (value) => {
-    dispatch(
-      updateFormData({
-        section: "pricing",
-        key: "type",
-        value,
-      })
-    );
+    dispatch(updateFormData({ section: "pricing", key: "type", value }));
   };
 
+  // Handle Custom Price Input
   const handleCustomPriceChange = (e) => {
-    const value = e.target.value;
     dispatch(
       updateFormData({
         section: "pricing",
         key: "customPrice",
-        value,
+        value: e.target.value,
       })
     );
   };
 
+  // Handle Tag Input (Services & Specializations)
   const handleTagInputChange = (e, section) => {
     if (e.key === "Enter" && e.target.value.trim()) {
       e.preventDefault();
-      // Don't prevent default behavior here
       const updatedList = [
         ...(section === "services" ? services : specializations),
         e.target.value.trim(),
       ];
-
       dispatch(
         updateFormData({
           section: "servicesAndSpecialization",
@@ -114,17 +90,16 @@ const DoctorProfileSettings = () => {
           value: updatedList,
         })
       );
-
       e.target.value = ""; // Clear input field
     }
   };
 
+  // Remove Tag (Services & Specializations)
   const handleTagRemove = (index, section) => {
     const updatedList =
       section === "services"
         ? services.filter((_, i) => i !== index)
         : specializations.filter((_, i) => i !== index);
-
     dispatch(
       updateFormData({
         section: "servicesAndSpecialization",
@@ -134,55 +109,51 @@ const DoctorProfileSettings = () => {
     );
   };
 
+  // Add More Items (Education, Experience, Awards, Memberships)
   const handleAddMore = (section, arrayKey, newItem) => {
-    //const currentArray = formData[section] || []; // Fallback to empty array
-
     dispatch(
       updateFormData({
         section,
-        key: arrayKey, // Pass the array key
-        value: newItem, // Append the new item
-        index: null, // No specific index for appending
+        key: arrayKey,
+        value: newItem,
+        index: null,
       })
     );
   };
 
+  // Remove Item (Education, Experience, Awards, Memberships)
   const handleRemove = (section, index) => {
-    dispatch(
-      deleteFormData({
-        section,
-        index,
-      })
-    );
+    dispatch(deleteFormData({ section, index }));
   };
 
-  //Handle Submit
-  const handleSubmit = (e) => {
+  // Handle Form Submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData.clinicInfo.images);
-    console.log(formData);
-
-    if (formData.username === "") {
-      toast.error("please username is required.");
-    } else if (formData.firstName === "") {
-      toast.error("please firstName is required.");
-    } else if (formData.lastName === "") {
-      toast.error("please lastName is required.");
-    } else if (formData.email === "") {
-      toast.error("please email is required.");
+    if (!formData.username) {
+      toast.error("Username is required.");
+    } else if (!formData.email) {
+      toast.error("Email is required.");
     } else {
-      dispatch(doctorProfileSettings(formData));
+      try {
+        const result = await updateDoctorProfile(formData).unwrap();
+        console.log("Update successful:", result);
+        refetch();
+        toast.success("Profile updated successfully!");
+        dispatch(clearFormData());
+        navigate("/DoctorDashboard");
+        // rest of success logic...
+      } catch (error) {
+        console.error("Error in updateDoctorProfile:", error);
+        toast.error(error.data?.message || "Failed to update doctor profile.");
+      }
     }
-    // Dispatch your submission action here
-
-    // After submitting, clear the form data by resetting it to the initial state
-    //dispatch(clearFormData());
   };
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
   return (
     <>
       {/* Main Wrapper */}
@@ -286,36 +257,7 @@ const DoctorProfileSettings = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>
-                              First Name <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={formData.firstName}
-                              onChange={(e) =>
-                                handleInputChange(null, "firstName", e)
-                              }
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>
-                              Last Name <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={formData.lastName}
-                              onChange={(e) =>
-                                handleInputChange(null, "lastName", e)
-                              }
-                            />
-                          </div>
-                        </div>
+
                         <div className="col-md-6">
                           <div className="form-group">
                             <label>Phone Number</label>

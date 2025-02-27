@@ -73,6 +73,24 @@ const DoctorLogin = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// Logout Doctor
+const DoctorLogout = catchAsyncErrors(async (req, res, next) => {
+  // Clear the doctorToken cookie
+  res.cookie("doctorToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "production", // Match your login settings
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0), // Expire immediately
+  });
+
+  res.status(200).json({
+    success: true,
+    error: false,
+    message: "Doctor logged out successfully.",
+  });
+});
+
 // Get Doctor data
 const DoctorDetails = catchAsyncErrors(async (req, res, next) => {
   const doctor = await Doctor.findById(req.doctorId).select("-password");
@@ -101,103 +119,6 @@ const AllDoctorsData = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// Update Doctor Profile
-// const updateDoctorProfile = catchAsyncErrors(async (req, res, next) => {
-//   const { doctorId } = req; // Fetch id from route parameter
-//   let updateData = req.body; // Initialize updateData with request body
-
-//   try {
-//     console.log("Body Data:", updateData); // Log request body
-//     console.log("Uploaded Files:", req.files); // Log uploaded files
-
-//     // ---- Handle single file upload: 'avatar' ----
-//     if (req.files && req.files["avatar"]) {
-//       const avatarFilePath = req.files["avatar"][0].path;
-
-//       // Save the file path to updateData
-//       updateData.avatar = avatarFilePath;
-
-//       console.log("Avatar uploaded locally:", avatarFilePath);
-//     }
-
-//     // ---- Handle multiple file uploads: 'images' ----
-//     if (req.files && req.files["clinicInfo.images"]) {
-//       const imageFiles = req.files["clinicInfo.images"]; // Array of files
-
-//       // Extract file paths
-//       const clinicImagesUrls = imageFiles.map((file) => file.path);
-
-//       console.log("Images uploaded locally:", clinicImagesUrls);
-
-//       // ---- Parse clinicInfo JSON if provided and add image file paths ----
-//       if (updateData.clinicInfo) {
-//         try {
-//           const clinicInfo = JSON.parse(updateData.clinicInfo);
-//           clinicInfo.images = clinicImagesUrls;
-//           updateData.clinicInfo = clinicInfo;
-//         } catch (error) {
-//           return res.status(400).json({
-//             success: false,
-//             message: "Invalid clinicInfo JSON format",
-//           });
-//         }
-//       }
-//     }
-
-//     // ---- Parse and handle other JSON fields if provided ----
-//     // const fieldsToParse = ["memberships", "education", "experience", "awards"];
-//     // fieldsToParse.forEach((field) => {
-//     //   if (updateData[field]) {
-//     //     try {
-//     //       updateData[field] = JSON.parse(updateData[field]);
-//     //     } catch (error) {
-//     //       return res.status(400).json({
-//     //         success: false,
-//     //         message: `Invalid ${field} JSON format`,
-//     //       });
-//     //     }
-//     //   }
-//     // });
-//     const fieldsToParse = ["memberships", "education", "experience", "awards"];
-//     fieldsToParse.forEach((field) => {
-//       if (updateData[field]) {
-//         try {
-//           updateData[field] = JSON.parse(updateData[field]);
-//         } catch (error) {
-//           return res.status(400).json({
-//             success: false,
-//             message: `Invalid ${field} JSON format`,
-//           });
-//         }
-//       }
-//     });
-
-//     // ---- Update Doctor Profile in Database ----
-//     const updatedDoctor = await Doctor.findByIdAndUpdate(
-//       doctorId,
-//       { $set: updateData },
-//       { new: true, runValidators: true }
-//     );
-
-//     // Handle doctor not found
-//     if (!updatedDoctor) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Doctor not found",
-//       });
-//     }
-
-//     // ---- Respond with Updated Data ----
-//     res.status(200).json({
-//       success: true,
-//       message: "Profile updated successfully",
-//       data: updatedDoctor,
-//     });
-//   } catch (error) {
-//     console.error("Update Profile Error:", error.message);
-//     next(new ErrorHandler(error.message, 500));
-//   }
-// });
 const updateDoctorProfile = catchAsyncErrors(async (req, res, next) => {
   const { doctorId } = req; // Fetch id from route parameter
   let updateData = req.body; // Initialize updateData with request body
@@ -304,6 +225,7 @@ const updateDoctorProfile = catchAsyncErrors(async (req, res, next) => {
 export {
   DoctorRegister,
   DoctorLogin,
+  DoctorLogout,
   DoctorDetails,
   AllDoctorsData,
   updateDoctorProfile,

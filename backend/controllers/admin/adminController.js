@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { catchAsyncErrors } from "../../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../../middlewares/error.js";
 import { Admin } from "../../models/admin/admin.model.js";
+import bcryptjs from "bcryptjs";
 
 // Seed Admins (Admin Registration)
 const seedAdmins = async () => {
@@ -77,6 +78,23 @@ const AdminLogin = catchAsyncErrors(async (req, res, next) => {
       token: adminToken,
     });
 });
+// Admin Logout
+const AdminLogout = catchAsyncErrors(async (req, res, next) => {
+  // Clear the adminToken cookie
+  res.cookie("adminToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "production", // Match your login settings
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0), // Expire immediately
+  });
+
+  res.status(200).json({
+    success: true,
+    error: false,
+    message: "Admin logged out successfully.",
+  });
+});
 // Get Admin data
 const AdminDetails = catchAsyncErrors(async (req, res, next) => {
   const admin = await Admin.findById(req.adminId).select("-password");
@@ -91,8 +109,49 @@ const AdminDetails = catchAsyncErrors(async (req, res, next) => {
   });
 });
 // Controller to update the admin profile
+// const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
+//   const { adminId } = req; // Use adminId from the auth token middleware
+//   let updateData = req.body; // Initialize updateData with request body
+
+//   try {
+//     console.log("Body Data:", updateData); // Log request body
+//     console.log("Uploaded Files:", req.files); // Log uploaded files
+
+//     // ---- Handle single file upload: 'avatar' ----
+//     if (req.files && req.files["avatar"]) {
+//       const avatarFilePath = req.files["avatar"][0].path;
+
+//       // Save file path to updateData
+//       updateData.avatar = avatarFilePath;
+
+//       console.log("Avatar stored locally at:", avatarFilePath);
+//     }
+
+//     // ---- Update Admin Profile in Database ----
+//     const updatedAdmin = await Admin.findByIdAndUpdate(
+//       adminId, // Use adminId from auth token
+//       { $set: updateData },
+//       { new: true, runValidators: true }
+//     );
+
+//     // Handle admin not found
+//     if (!updatedAdmin) {
+//       return next(new ErrorHandler("Admin not found.", 404));
+//     }
+
+//     // ---- Respond with Updated Data ----
+//     res.status(200).json({
+//       success: true,
+//       message: "Profile updated successfully",
+//       data: updatedAdmin,
+//     });
+//   } catch (error) {
+//     console.error("Update Profile Error:", error.message);
+//     next(new ErrorHandler(error.message, 500));
+//   }
+// });
 const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
-  const { adminId } = req; // Use adminId from the auth token middleware
+  const { adminId } = req; // Use adminId from auth token middleware
   let updateData = req.body; // Initialize updateData with request body
 
   try {
@@ -102,11 +161,15 @@ const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
     // ---- Handle single file upload: 'avatar' ----
     if (req.files && req.files["avatar"]) {
       const avatarFilePath = req.files["avatar"][0].path;
-
-      // Save file path to updateData
       updateData.avatar = avatarFilePath;
-
       console.log("Avatar stored locally at:", avatarFilePath);
+    }
+
+    // ---- Handle password hashing if password is updated ----
+    if (updateData.password) {
+      const salt = await bcryptjs.genSalt(10);
+      updateData.password = await bcryptjs.hash(updateData.password, salt);
+      console.log("Password hashed successfully");
     }
 
     // ---- Update Admin Profile in Database ----
@@ -132,5 +195,4 @@ const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
     next(new ErrorHandler(error.message, 500));
   }
 });
-
-export { AdminLogin, AdminDetails, updateAdminProfile };
+export { AdminLogin, AdminLogout, AdminDetails, updateAdminProfile };

@@ -11,9 +11,6 @@ const bookingSchema = new mongoose.Schema({
     ref: "Patient",
     required: true,
   },
-  patientName: { type: String, required: true },
-  email: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
   amount: { type: String, required: true },
   time: { type: String, required: true },
   purpose: { type: String, required: true },
@@ -27,7 +24,7 @@ const bookingSchema = new mongoose.Schema({
   },
   bookingDate: { type: Date, default: Date.now }, // Automatically sets to current date
   appointmentDate: { type: Date, required: true }, // Appointment date
-  customId: { type: String, unique: true }, // Custom ID field
+  customId: { type: String }, // Custom ID field
 });
 
 export default mongoose.model("Booking", bookingSchema);

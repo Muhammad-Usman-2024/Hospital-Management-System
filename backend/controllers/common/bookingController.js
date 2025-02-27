@@ -4,17 +4,6 @@ import ErrorHandler from "../../middlewares/error.js";
 import Booking from "../../models/common/booking.model.js";
 import Doctor from "../../models/doctor/doctor.model.js";
 
-// const BookDoctor = async (req, res) => {
-//   try {
-//     const bookingData = req.body;
-
-//     const booking = new Booking(bookingData);
-//     await booking.save();
-//     res.status(201).json({ message: "Booking created successfully", booking });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error creating booking", error });
-//   }
-// };
 const BookDoctor = async (req, res) => {
   try {
     console.log("Received Booking Request:", req.body); // Debugging log
@@ -22,9 +11,6 @@ const BookDoctor = async (req, res) => {
     const {
       doctorId,
       patientId,
-      patientName,
-      email,
-      phoneNumber,
       amount,
       time,
       purpose,
@@ -44,9 +30,6 @@ const BookDoctor = async (req, res) => {
     if (
       !doctorId ||
       !patientId ||
-      !patientName ||
-      !email ||
-      !phoneNumber ||
       !amount ||
       !time ||
       !purpose ||
@@ -70,9 +53,6 @@ const BookDoctor = async (req, res) => {
     const booking = new Booking({
       doctorId,
       patientId,
-      patientName,
-      email,
-      phoneNumber,
       amount,
       time,
       purpose,
@@ -120,7 +100,12 @@ const getBookings = async (req, res) => {
       bookings = await Booking.find({
         doctorId: userId,
         status: { $ne: "Cancelled" }, // Exclude canceled bookings
-      }).populate("patientId", "avatar name");
+      }).populate("patientId", "avatar name email phoneNumber");
+    } else if (userRole === "allpatients") {
+      bookings = await Booking.find().populate(
+        "patientId",
+        "avatar name email phoneNumber"
+      );
     } else {
       return res.status(400).json({ message: "Invalid role" });
     }
@@ -155,26 +140,6 @@ const getBookings = async (req, res) => {
   }
 };
 
-// const updateBookingStatus = async (req, res) => {
-//   try {
-//     const { bookingId } = req.params;
-//     const { status } = req.body;
-
-//     const booking = await Booking.findByIdAndUpdate(
-//       bookingId,
-//       { status },
-//       { new: true }
-//     );
-
-//     if (!booking) {
-//       return res.status(404).json({ message: "Booking not found" });
-//     }
-
-//     res.status(200).json({ message: "Booking status updated", booking });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error updating booking status", error });
-//   }
-// };
 const updateBookingStatus = async (req, res) => {
   try {
     const { bookingId } = req.params;

@@ -1,53 +1,52 @@
 import { useDispatch, useSelector } from "react-redux";
-import {
-  resetIsRegistered,
-  setForm,
-} from "../redux/features/doctorSlices/registerSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { doctorRegister } from "../redux/thunks/thunks";
+import { useDoctorRegisterMutation } from "../redux/features/doctor/doctorApi";
+import {
+  resetRegisterForm,
+  setRegisterForm,
+} from "../redux/features/doctor/doctorSlice";
+import { toast } from "react-toastify";
+
 const DoctorRegister = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  //Extract the "redirect" query parameter
   const searchParams = new URLSearchParams(location.search);
   const redirect = searchParams.get("redirect");
-  console.log(redirect);
 
-  const {
-    form = {},
-    isLoading,
-    error,
-    isRegistered,
-  } = useSelector((state) => state.doctorRegister);
+  const { registerForm } = useSelector((state) => state.doctor);
+  const [doctorRegister, { isLoading, isSuccess, error }] =
+    useDoctorRegisterMutation();
+
   useEffect(() => {
-    console.log(isRegistered);
-    if (isRegistered) {
-      // Redirect based on the "redirect" query parameter
-      if (redirect === "adminDashboard") {
-        navigate("/AdminDashboard");
-      } else if (redirect === "registerLink") {
-        navigate("/DoctorDashboard");
-      }
-      // Reset isRegistered after redirection
-      dispatch(resetIsRegistered());
+    if (isSuccess) {
+      toast.success("Doctor registration successful!");
+      dispatch(resetRegisterForm());
+      navigate(
+        redirect === "adminDashboard" ? "/AdminDashboard" : "/DoctorDashboard"
+      );
     }
-  }, [isRegistered, redirect, navigate, dispatch]);
+  }, [isSuccess, redirect, navigate, dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    dispatch(setForm({ [name]: value }));
+    dispatch(setRegisterForm({ [name]: value }));
   };
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(doctorRegister(form));
+    try {
+      await doctorRegister(registerForm).unwrap();
+    } catch (err) {
+      console.error("Registration error:", err);
+      toast.error(err.data?.message || "Registration failed");
+    }
   };
 
   return (
     <>
-      {/* Main Wrapper */}
       <div className="main-wrapper">
         {/* Page Content */}
         <div className="content">
@@ -70,13 +69,14 @@ const DoctorRegister = () => {
                           Register as a <span>Doctor</span>
                         </h3>
                       </div>
+                      {isLoading && <p>Loading...</p>}
                       <form onSubmit={handleSubmit}>
                         <div className="form-group form-focus">
                           <input
                             type="text"
                             className="form-control floating"
                             name="username"
-                            value={form.username || ""} // Ensure a fallback value
+                            value={registerForm.username || ""} // Ensure a fallback value
                             onChange={handleChange} // Handle input change
                           />
                           <label className="focus-label">Name</label>
@@ -87,7 +87,7 @@ const DoctorRegister = () => {
                             type="email"
                             className="form-control floating"
                             name="email"
-                            value={form.email || ""} // Ensure a fallback value
+                            value={registerForm.email || ""} // Ensure a fallback value
                             onChange={handleChange} // Handle input change
                           />
                           <label className="focus-label">Email</label>
@@ -98,13 +98,11 @@ const DoctorRegister = () => {
                             type="password"
                             className="form-control floating"
                             name="password"
-                            value={form.password || ""} // Ensure a fallback value
+                            value={registerForm.password || ""} // Ensure a fallback value
                             onChange={handleChange} // Handle input change
                           />
                           <label className="focus-label">Password</label>
                         </div>
-
-                        {error && <div className="text-danger">{error}</div>}
 
                         <button
                           className="btn btn-primary btn-block btn-lg login-btn"

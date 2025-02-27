@@ -1,39 +1,61 @@
 import React, { useState } from "react";
-import { updateFormData } from "../redux/features/patientSlices/profileSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { patientProfileSettings } from "../redux/thunks/thunks";
 import PatientSidebar from "./PatientSidebar";
+import {
+  useFetchPatientDataQuery,
+  usePatientProfileSettingsMutation,
+} from "../redux/features/patient/patientApi";
+import {
+  clearProfileFormData,
+  updateProfileFormData,
+} from "../redux/features/patient/patientSlice";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const ProfileSettings = () => {
-  const [file, setFile] = useState(null); // To store the file object
-  const [fileUrl, setFileUrl] = useState(""); // To store the frontend URL for display purposes
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { formData = {}, status } = useSelector(
-    (state) => state.patientProfile
-  );
+  const profileForm = useSelector((state) => state.patient.profileForm);
+  const [patientProfileSettings, { isLoading }] =
+    usePatientProfileSettingsMutation();
+  const {
+    data: patientData,
+    isLoading: isFetchingPatientData,
+    refetch,
+  } = useFetchPatientDataQuery();
+
+  const [fileUrl, setFileUrl] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    dispatch(updateFormData({ key: name, value }));
+    dispatch(updateProfileFormData({ key: name, value }));
   };
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0]; // Store the File object
-    setFile(selectedFile);
-
-    // Create a URL for displaying the image on the frontend (not to store in Redux)
-    const frontendUrl = URL.createObjectURL(selectedFile);
-    setFileUrl(frontendUrl);
-
-    // Dispatch to update Redux formData with the file object directly
-    dispatch(updateFormData({ key: "avatar", value: selectedFile }));
+    const file = e.target.files[0];
+    if (file) {
+      dispatch(updateProfileFormData({ key: "avatar", value: file }));
+      setFileUrl(URL.createObjectURL(file));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    dispatch(patientProfileSettings(formData));
+    console.log(
+      "this is the profile form data in the paitent profile settings:",
+      profileForm
+    );
+    try {
+      await patientProfileSettings(profileForm).unwrap();
+      refetch(); // Refresh data manually after update
+      toast.success("Profile updated successfully!");
+      dispatch(clearProfileFormData());
+      navigate("/PatientDashboard");
+    } catch (error) {
+      toast.error(error.data?.message || "Update failed");
+    }
   };
+
   return (
     <>
       {/* Main Wrapper */}
@@ -107,7 +129,7 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="name"
-                          value={formData.name}
+                          value={profileForm.name}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -118,7 +140,7 @@ const ProfileSettings = () => {
                           type="date"
                           className="form-control"
                           name="dateOfBirth"
-                          value={formData.dateOfBirth}
+                          value={profileForm.dateOfBirth}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -128,7 +150,7 @@ const ProfileSettings = () => {
                         <select
                           className="form-control"
                           name="bloodGroup"
-                          value={formData.bloodGroup}
+                          value={profileForm.bloodGroup}
                           onChange={handleInputChange}
                         >
                           <option>A-</option>
@@ -148,7 +170,7 @@ const ProfileSettings = () => {
                           type="email"
                           className="form-control"
                           name="email"
-                          value={formData.email}
+                          value={profileForm.email}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -159,7 +181,7 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="phoneNumber"
-                          value={formData.phoneNumber}
+                          value={profileForm.phoneNumber}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -170,7 +192,7 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="address"
-                          value={formData.address}
+                          value={profileForm.address}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -181,7 +203,7 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="city"
-                          value={formData.city}
+                          value={profileForm.city}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -192,7 +214,7 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="state"
-                          value={formData.state}
+                          value={profileForm.state}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -203,7 +225,7 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="zipCode"
-                          value={formData.zipCode}
+                          value={profileForm.zipCode}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -214,7 +236,7 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="country"
-                          value={formData.country}
+                          value={profileForm.country}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -225,7 +247,7 @@ const ProfileSettings = () => {
                           type="submit"
                           className="btn btn-primary submit-btn"
                         >
-                          Save Changes
+                          {isLoading ? "Updating..." : "Update Profile"}
                         </button>
                       </div>
                     </form>

@@ -1,50 +1,63 @@
 import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  clearFormData,
-  updateFormData,
-} from "../redux/features/adminSlices/profileSlice";
-import { adminProfileSettings, fetchAdminData } from "../redux/thunks/thunks";
+
 import API_URL from "../../config/apiConfig";
+import {
+  clearProfileFormData,
+  updateProfileFormData,
+} from "../redux/features/admin/adminSlice";
+import {
+  useGetAdminDataQuery,
+  useUpdateAdminProfileMutation,
+} from "../redux/features/admin/adminApi";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import AdminSidebar from "./AdminSidebar";
 
 const AdminProfileSettings = () => {
-  const [file, setFile] = useState(null); // To store the file object
-  const [fileUrl, setFileUrl] = useState(""); // To store the frontend URL for display purposes
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { formData = {}, status } = useSelector((state) => state.adminProfile);
-  const {
-    adminData,
-    isLoading: isAdminLoading,
-    error: adminError,
-  } = useSelector((state) => state.adminDetails);
+  const profileFormData = useSelector((state) => state.admin.profileFormData);
+  const { data: adminData, refetch } = useGetAdminDataQuery();
 
+  // Local state for file preview
+  const [fileUrl, setFileUrl] = useState("");
+
+  // RTK Query mutation hook
+  const [updateAdminProfile, { isLoading }] = useUpdateAdminProfileMutation();
+
+  // Handle input change and update Redux store
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    dispatch(updateFormData({ key: name, value }));
+    dispatch(updateProfileFormData({ key: name, value }));
   };
 
+  // Handle file upload (for avatar)
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0]; // Store the File object
-    setFile(selectedFile);
-
-    // Create a URL for displaying the image on the frontend (not to store in Redux)
-    const frontendUrl = URL.createObjectURL(selectedFile);
-    setFileUrl(frontendUrl);
-
-    // Dispatch to update Redux formData with the file object directly
-    dispatch(updateFormData({ key: "avatar", value: selectedFile }));
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const previewUrl = URL.createObjectURL(selectedFile);
+      setFileUrl(previewUrl); // Set preview image
+      dispatch(updateProfileFormData({ key: "avatar", value: selectedFile })); // Store file in Redux
+    }
   };
 
-  const handleSubmit = (e) => {
+  // Handle form submission with toast notifications
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    dispatch(clearFormData());
-    dispatch(adminProfileSettings(formData));
+    try {
+      await updateAdminProfile(profileFormData).unwrap();
+      refetch(); // Refresh data manually after update
+      toast.success("Profile updated successfully!");
+      navigate("/AdminDashboard");
+      dispatch(clearProfileFormData());
+    } catch (error) {
+      console.log("Error in profile settings", error);
+      toast.error(error?.data?.message || "Failed to update profile!");
+    }
   };
-  if (isAdminLoading) {
-    return <div>Loading...</div>;
-  }
+
   return (
     <>
       {/* Main Wrapper */}
@@ -73,72 +86,12 @@ const AdminProfileSettings = () => {
         {/* Page Content */}
         <div className="content">
           <div className="container-fluid">
-            <div className="row">
+            <div className="row d-flex">
               {/* Profile Sidebar */}
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
-                <div className="profile-sidebar">
-                  <div className="widget-profile pro-widget-content">
-                    <div className="profile-info-widget">
-                      <a href="#" className="booking-doc-img">
-                        <img
-                          src={
-                            `${API_URL}/${adminData?.avatar}` ||
-                            "assets/img/admins/qamar.jpeg"
-                          }
-                          alt="User Image"
-                        />
-                      </a>
-                      <div className="profile-det-info">
-                        <h3>{adminData?.username}</h3>
-                        <div className="admin-details">{adminData.email}</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="dashboard-widget">
-                    <nav className="dashboard-menu">
-                      <ul>
-                        <li>
-                          <a href="#">
-                            <i className="fas fa-columns" />
-                            <span>Dashboard</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="Favourites">
-                            <i className="fas fa-bookmark" />
-                            <span>Favourites</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="Chat">
-                            <i className="fas fa-comments" />
-                            <span>Message</span>
-                            <small className="unread-msg">23</small>
-                          </a>
-                        </li>
-                        <li className="active">
-                          <a href="ProfileSettings">
-                            <i className="fas fa-user-cog" />
-                            <span>Profile Settings</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="ChangePassword">
-                            <i className="fas fa-lock" />
-                            <span>Change Password</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="Home">
-                            <i className="fas fa-sign-out-alt" />
-                            <span>Logout</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
-                </div>
+                <AdminSidebar />
               </div>
+
               {/* /Profile Sidebar */}
               <div className="col-md-7 col-lg-8 col-xl-9">
                 <div className="card">
@@ -180,7 +133,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="username"
-                          value={formData.username}
+                          value={profileFormData.username}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -190,7 +143,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="firstName"
-                          value={formData.firstName}
+                          value={profileFormData.firstName}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -201,7 +154,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="lastName"
-                          value={formData.lastName}
+                          value={profileFormData.lastName}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -212,7 +165,7 @@ const AdminProfileSettings = () => {
                           type="date"
                           className="form-control"
                           name="dateOfBirth"
-                          value={formData.dateOfBirth}
+                          value={profileFormData.dateOfBirth}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -223,7 +176,7 @@ const AdminProfileSettings = () => {
                           type="email"
                           className="form-control"
                           name="email"
-                          value={formData.email}
+                          value={profileFormData.email}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -233,7 +186,7 @@ const AdminProfileSettings = () => {
                           type="password"
                           className="form-control"
                           name="password"
-                          value={formData.password}
+                          value={profileFormData.password}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -244,7 +197,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="phoneNumber"
-                          value={formData.phoneNumber}
+                          value={profileFormData.phoneNumber}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -255,7 +208,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="address"
-                          value={formData.address}
+                          value={profileFormData.address}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -266,7 +219,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="city"
-                          value={formData.city}
+                          value={profileFormData.city}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -277,7 +230,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="state"
-                          value={formData.state}
+                          value={profileFormData.state}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -288,7 +241,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="zipCode"
-                          value={formData.zipCode}
+                          value={profileFormData.zipCode}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -299,7 +252,7 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="country"
-                          value={formData.country}
+                          value={profileFormData.country}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -310,7 +263,7 @@ const AdminProfileSettings = () => {
                           type="submit"
                           className="btn btn-primary submit-btn"
                         >
-                          Save Changes
+                          {isLoading ? "Updating..." : "Update Profile"}
                         </button>
                       </div>
                     </form>
