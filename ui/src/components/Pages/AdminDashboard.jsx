@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+<<<<<<< HEAD
 import { useDispatch, useSelector } from "react-redux";
 import API_URL from "../../config/apiConfig";
 import { fetchAdminData } from "../redux/thunks/thunks";
@@ -29,6 +30,31 @@ const AdminDashboard = () => {
   if (adminError || doctorError) {
     return <p>Error: {adminError || doctorError}</p>;
   }
+=======
+import API_URL from "../../config/apiConfig";
+import {
+  useGetAdminDataQuery,
+  useVerifyAdminTokenQuery,
+} from "../redux/features/admin/adminApi";
+import AdminSidebar from "./AdminSidebar";
+import { useFetchAllDoctorsDataQuery } from "../redux/features/doctor/doctorApi";
+
+const AdminDashboard = () => {
+  const {
+    data: adminData,
+    isLoading: getdataLoading,
+    error,
+  } = useGetAdminDataQuery();
+  const { data: verifyTokenData, isLoading: verifydataLoading } =
+    useVerifyAdminTokenQuery();
+  const { data: allDoctorsData, isLoading: allDoctorsLoading } =
+    useFetchAllDoctorsDataQuery();
+  const doctorsData = allDoctorsData?.data || [];
+  if (getdataLoading || verifydataLoading) {
+    return <p>Loading...</p>;
+  }
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
@@ -60,6 +86,7 @@ const AdminDashboard = () => {
             <div className="row">
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
                 {/* Profile Sidebar */}
+<<<<<<< HEAD
                 <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
@@ -160,6 +187,9 @@ const AdminDashboard = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <AdminSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                 {/* /Profile Sidebar */}
               </div>
               <div className="col-md-7 col-lg-8 col-xl-9">
@@ -325,10 +355,13 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                         </div>
+<<<<<<< HEAD
                         {/* /Upcoming Appointment Tab */}
                         {/* Today Appointment Tab */}
 
                         {/* /Today Appointment Tab */}
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                       </div>
                     </div>
                   </div>

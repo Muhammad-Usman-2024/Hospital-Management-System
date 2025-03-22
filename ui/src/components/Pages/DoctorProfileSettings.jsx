@@ -4,6 +4,7 @@ import {
   deleteFormData,
   uploadImage,
   removeImage,
+<<<<<<< HEAD
 } from "../redux/features/doctorSlices/profileSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -19,10 +20,32 @@ const DoctorProfileSettings = () => {
   );
 
   // Extracting services and specializations from formData
+=======
+  clearFormData,
+} from "../redux/features/doctor/doctorSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import API_URL from "../../config/apiConfig";
+import DoctorSidebar from "./DoctorSidebar";
+import {
+  useFetchDoctorDataQuery,
+  useUpdateDoctorProfileMutation,
+} from "../redux/features/doctor/doctorApi";
+import { useNavigate } from "react-router-dom";
+
+const DoctorProfileSettings = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { formData } = useSelector((state) => state.doctor);
+  const { data: doctorData, isLoading, refetch } = useFetchDoctorDataQuery();
+
+  const [fileUrl, setFileUrl] = useState("");
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   const { services = [], specializations = [] } =
     formData.servicesAndSpecialization || {};
 
   const { education, experience, awards, memberships } = formData;
+<<<<<<< HEAD
 
   const handleInputChange = (section, key, e, index = null) => {
     const value = e.target.value;
@@ -36,10 +59,23 @@ const DoctorProfileSettings = () => {
     );
   };
 
+=======
+  const [updateDoctorProfile, { isLoading: isUpdating }] =
+    useUpdateDoctorProfileMutation();
+
+  // Handle Input Change
+  const handleInputChange = (section, key, e, index = null) => {
+    const value = e.target.value;
+    dispatch(updateFormData({ section, key: key.trim(), value, index }));
+  };
+
+  // Handle File Upload
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   const handleFileChange = (key, e) => {
     const file = e.target.files[0];
     const frontendUrl = URL.createObjectURL(file);
     setFileUrl(frontendUrl);
+<<<<<<< HEAD
     dispatch(
       uploadImage({
         key,
@@ -62,10 +98,22 @@ const DoctorProfileSettings = () => {
         );
       } else {
         console.error("Invalid file type:", file);
+=======
+    dispatch(uploadImage({ key, file }));
+  };
+
+  // Handle Multiple Image Uploads
+  const handleClinicImagesUpload = (e) => {
+    const files = Array.from(e.target.files);
+    files.forEach((file) => {
+      if (file instanceof File) {
+        dispatch(uploadImage({ section: "clinicInfo", key: "images", file }));
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
       }
     });
   };
 
+<<<<<<< HEAD
   const handleImageRemove = (section, key, index) => {
     dispatch(
       removeImage({
@@ -88,24 +136,52 @@ const DoctorProfileSettings = () => {
 
   const handleCustomPriceChange = (e) => {
     const value = e.target.value;
+=======
+  // Handle Image Remove
+  const handleImageRemove = (section, key, index) => {
+    dispatch(removeImage({ section, key, index }));
+  };
+
+  // Handle Pricing Radio Button Change
+  const handleRadioChange = (value) => {
+    dispatch(updateFormData({ section: "pricing", key: "type", value }));
+  };
+
+  // Handle Custom Price Input
+  const handleCustomPriceChange = (e) => {
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
     dispatch(
       updateFormData({
         section: "pricing",
         key: "customPrice",
+<<<<<<< HEAD
         value,
+=======
+        value: e.target.value,
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
       })
     );
   };
 
+<<<<<<< HEAD
   const handleTagInputChange = (e, section) => {
     if (e.key === "Enter" && e.target.value.trim()) {
       e.preventDefault();
       // Don't prevent default behavior here
+=======
+  // Handle Tag Input (Services & Specializations)
+  const handleTagInputChange = (e, section) => {
+    if (e.key === "Enter" && e.target.value.trim()) {
+      e.preventDefault();
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
       const updatedList = [
         ...(section === "services" ? services : specializations),
         e.target.value.trim(),
       ];
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
       dispatch(
         updateFormData({
           section: "servicesAndSpecialization",
@@ -113,17 +189,27 @@ const DoctorProfileSettings = () => {
           value: updatedList,
         })
       );
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
       e.target.value = ""; // Clear input field
     }
   };
 
+<<<<<<< HEAD
+=======
+  // Remove Tag (Services & Specializations)
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   const handleTagRemove = (index, section) => {
     const updatedList =
       section === "services"
         ? services.filter((_, i) => i !== index)
         : specializations.filter((_, i) => i !== index);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
     dispatch(
       updateFormData({
         section: "servicesAndSpecialization",
@@ -133,6 +219,7 @@ const DoctorProfileSettings = () => {
     );
   };
 
+<<<<<<< HEAD
   const handleAddMore = (section, arrayKey, newItem) => {
     //const currentArray = formData[section] || []; // Fallback to empty array
 
@@ -142,10 +229,21 @@ const DoctorProfileSettings = () => {
         key: arrayKey, // Pass the array key
         value: newItem, // Append the new item
         index: null, // No specific index for appending
+=======
+  // Add More Items (Education, Experience, Awards, Memberships)
+  const handleAddMore = (section, arrayKey, newItem) => {
+    dispatch(
+      updateFormData({
+        section,
+        key: arrayKey,
+        value: newItem,
+        index: null,
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
       })
     );
   };
 
+<<<<<<< HEAD
   const handleRemove = (section, index) => {
     dispatch(
       deleteFormData({
@@ -177,11 +275,44 @@ const DoctorProfileSettings = () => {
 
     // After submitting, clear the form data by resetting it to the initial state
     //dispatch(clearFormData());
+=======
+  // Remove Item (Education, Experience, Awards, Memberships)
+  const handleRemove = (section, index) => {
+    dispatch(deleteFormData({ section, index }));
+  };
+
+  // Handle Form Submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.username) {
+      toast.error("Username is required.");
+    } else if (!formData.email) {
+      toast.error("Email is required.");
+    } else {
+      try {
+        const result = await updateDoctorProfile(formData).unwrap();
+        console.log("Update successful:", result);
+        refetch();
+        toast.success("Profile updated successfully!");
+        dispatch(clearFormData());
+        navigate("/DoctorDashboard");
+        // rest of success logic...
+      } catch (error) {
+        console.error("Error in updateDoctorProfile:", error);
+        toast.error(error.data?.message || "Failed to update doctor profile.");
+      }
+    }
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   };
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
@@ -213,6 +344,7 @@ const DoctorProfileSettings = () => {
             <div className="row">
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
                 {/* Profile Sidebar */}
+<<<<<<< HEAD
                 <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
@@ -311,6 +443,9 @@ const DoctorProfileSettings = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <DoctorSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                 {/* /Profile Sidebar */}
               </div>
               <div className="col-md-7 col-lg-8 col-xl-9">
@@ -382,6 +517,7 @@ const DoctorProfileSettings = () => {
                             />
                           </div>
                         </div>
+<<<<<<< HEAD
                         <div className="col-md-6">
                           <div className="form-group">
                             <label>
@@ -412,6 +548,9 @@ const DoctorProfileSettings = () => {
                             />
                           </div>
                         </div>
+=======
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                         <div className="col-md-6">
                           <div className="form-group">
                             <label>Phone Number</label>

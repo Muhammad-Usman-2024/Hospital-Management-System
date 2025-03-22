@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
 import { updateFormData } from "../redux/features/patientSlices/profileSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { patientProfileSettings } from "../redux/thunks/thunks";
@@ -33,6 +34,65 @@ const ProfileSettings = () => {
     console.log(formData);
     dispatch(patientProfileSettings(formData));
   };
+=======
+import { useDispatch, useSelector } from "react-redux";
+import PatientSidebar from "./PatientSidebar";
+import {
+  useFetchPatientDataQuery,
+  usePatientProfileSettingsMutation,
+} from "../redux/features/patient/patientApi";
+import {
+  clearProfileFormData,
+  updateProfileFormData,
+} from "../redux/features/patient/patientSlice";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
+const ProfileSettings = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const profileForm = useSelector((state) => state.patient.profileForm);
+  const [patientProfileSettings, { isLoading }] =
+    usePatientProfileSettingsMutation();
+  const {
+    data: patientData,
+    isLoading: isFetchingPatientData,
+    refetch,
+  } = useFetchPatientDataQuery();
+
+  const [fileUrl, setFileUrl] = useState("");
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    dispatch(updateProfileFormData({ key: name, value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      dispatch(updateProfileFormData({ key: "avatar", value: file }));
+      setFileUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(
+      "this is the profile form data in the paitent profile settings:",
+      profileForm
+    );
+    try {
+      await patientProfileSettings(profileForm).unwrap();
+      refetch(); // Refresh data manually after update
+      toast.success("Profile updated successfully!");
+      dispatch(clearProfileFormData());
+      navigate("/PatientDashboard");
+    } catch (error) {
+      toast.error(error.data?.message || "Update failed");
+    }
+  };
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
@@ -64,6 +124,7 @@ const ProfileSettings = () => {
             <div className="row">
               {/* Profile Sidebar */}
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
+<<<<<<< HEAD
                 <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
@@ -131,6 +192,9 @@ const ProfileSettings = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <PatientSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
               </div>
               {/* /Profile Sidebar */}
               <div className="col-md-7 col-lg-8 col-xl-9">
@@ -172,7 +236,11 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="name"
+<<<<<<< HEAD
                           value={formData.name}
+=======
+                          value={profileForm.name}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -183,7 +251,11 @@ const ProfileSettings = () => {
                           type="date"
                           className="form-control"
                           name="dateOfBirth"
+<<<<<<< HEAD
                           value={formData.dateOfBirth}
+=======
+                          value={profileForm.dateOfBirth}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -193,7 +265,11 @@ const ProfileSettings = () => {
                         <select
                           className="form-control"
                           name="bloodGroup"
+<<<<<<< HEAD
                           value={formData.bloodGroup}
+=======
+                          value={profileForm.bloodGroup}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         >
                           <option>A-</option>
@@ -213,7 +289,11 @@ const ProfileSettings = () => {
                           type="email"
                           className="form-control"
                           name="email"
+<<<<<<< HEAD
                           value={formData.email}
+=======
+                          value={profileForm.email}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -224,7 +304,11 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="phoneNumber"
+<<<<<<< HEAD
                           value={formData.phoneNumber}
+=======
+                          value={profileForm.phoneNumber}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -235,7 +319,11 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="address"
+<<<<<<< HEAD
                           value={formData.address}
+=======
+                          value={profileForm.address}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -246,7 +334,11 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="city"
+<<<<<<< HEAD
                           value={formData.city}
+=======
+                          value={profileForm.city}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -257,7 +349,11 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="state"
+<<<<<<< HEAD
                           value={formData.state}
+=======
+                          value={profileForm.state}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -268,7 +364,11 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="zipCode"
+<<<<<<< HEAD
                           value={formData.zipCode}
+=======
+                          value={profileForm.zipCode}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -279,7 +379,11 @@ const ProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="country"
+<<<<<<< HEAD
                           value={formData.country}
+=======
+                          value={profileForm.country}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -290,7 +394,11 @@ const ProfileSettings = () => {
                           type="submit"
                           className="btn btn-primary submit-btn"
                         >
+<<<<<<< HEAD
                           Save Changes
+=======
+                          {isLoading ? "Updating..." : "Update Profile"}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                         </button>
                       </div>
                     </form>

@@ -113,7 +113,16 @@ const getBookings = async (req, res) => {
       bookings = await Booking.find({
         doctorId: userId,
         status: { $ne: "Cancelled" }, // Exclude canceled bookings
+<<<<<<< HEAD
       }).populate("patientId", "avatar name");
+=======
+      }).populate("patientId", "avatar name email phoneNumber");
+    } else if (userRole === "allpatients") {
+      bookings = await Booking.find().populate(
+        "patientId",
+        "avatar name email phoneNumber"
+      );
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
     } else {
       return res.status(400).json({ message: "Invalid role" });
     }
@@ -128,7 +137,11 @@ const getBookings = async (req, res) => {
     const updatedBookings = await Promise.all(
       bookings.map(async (booking, index) => {
         if (!booking.customId) {
+<<<<<<< HEAD
           const prefix = userRole === "doctor" ? "DR" : "PT";
+=======
+          const prefix = "PT";
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
           const generatedId = `#${prefix}${String(index + 1).padStart(4, "0")}`;
           booking.customId = generatedId;
 
@@ -148,6 +161,7 @@ const getBookings = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 // const getBookings = async (req, res) => {
 //   try {
 //     const { userId, role } = req.query;
@@ -208,11 +222,14 @@ const getBookings = async (req, res) => {
 //   }
 // };
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 const updateBookingStatus = async (req, res) => {
   try {
     const { bookingId } = req.params;
     const { status } = req.body;
 
+<<<<<<< HEAD
     const booking = await Booking.findByIdAndUpdate(
       bookingId,
       { status },
@@ -225,6 +242,23 @@ const updateBookingStatus = async (req, res) => {
 
     res.status(200).json({ message: "Booking status updated", booking });
   } catch (error) {
+=======
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { status },
+      { new: true }
+    ).populate("patientId", "avatar name email phoneNumber");
+
+    if (!updatedBooking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Booking status updated", booking: updatedBooking });
+  } catch (error) {
+    console.error("Error updating booking status:", error);
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
     res.status(500).json({ message: "Error updating booking status", error });
   }
 };

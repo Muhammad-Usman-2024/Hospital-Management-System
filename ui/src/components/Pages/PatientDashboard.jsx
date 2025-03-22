@@ -1,13 +1,27 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+<<<<<<< HEAD
 import { fetchBookings } from "../redux/features/commonSlices/bookingSlice";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs from "dayjs";
 import API_URL from "../../config/apiConfig";
+=======
+
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import dayjs from "dayjs";
+import API_URL from "../../config/apiConfig";
+import PatientSidebar from "./PatientSidebar";
+import {
+  useFetchPatientDataQuery,
+  useVerifyPatientTokenQuery,
+} from "../redux/features/patient/patientApi";
+import { useFetchBookingsQuery } from "../redux/features/appointments/appointmentApi";
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
 dayjs.extend(customParseFormat);
 
 const PatientDashboard = () => {
+<<<<<<< HEAD
   const dispatch = useDispatch();
 
   // Extract patient data from Redux state
@@ -52,12 +66,45 @@ const PatientDashboard = () => {
   //   return <p>Loading your dashboard...</p>;
   // if (bookingsError) return <p>Error in bookings: {bookingsError}</p>;
   // if (doctorsError) return <p>Error in doctors: {doctorsError}</p>;
+=======
+  const { data: patientTokenData, isFetching: isPatientVerifying } =
+    useVerifyPatientTokenQuery();
+  console.log("this is the isauth token for patient:", patientTokenData);
+  const {
+    data: patientData,
+    isLoading: ispatientFetching,
+    error: patientError,
+    isSuccess,
+  } = useFetchPatientDataQuery();
+  const { data: bookingsData, isLoading: isbookingFetching } =
+    useFetchBookingsQuery({
+      userId: patientData?._id,
+      role: "patient",
+    });
+  const patientBookings = bookingsData?.patientBookings || [];
+
+  console.log(
+    "this is the bookings data in the paitentdashboard:",
+    patientBookings
+  );
+  useEffect(() => {
+    console.log("Query status:", {
+      isLoading: ispatientFetching,
+      isSuccess,
+      error: patientError,
+      patientData,
+    });
+  }, [ispatientFetching, isSuccess, patientError, patientData]);
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
   return (
     <>
       {/* Main Wrapper */}
       <div className="main-wrapper">
+<<<<<<< HEAD
         {/* Breadcrumb */}
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
         <div className="breadcrumb-bar">
           <div className="container-fluid">
             <div className="row align-items-center">
@@ -84,6 +131,7 @@ const PatientDashboard = () => {
             <div className="row">
               {/* Profile Sidebar */}
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
+<<<<<<< HEAD
                 <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
@@ -151,6 +199,9 @@ const PatientDashboard = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <PatientSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
               </div>
               {/* / Profile Sidebar */}
               <div className="col-md-7 col-lg-8 col-xl-9">
@@ -221,6 +272,7 @@ const PatientDashboard = () => {
                                   </tr>
                                 </thead>
                                 <tbody>
+<<<<<<< HEAD
                                   {bookings.map((booking, index) => (
                                     <tr key={index}>
                                       <td>
@@ -749,6 +801,100 @@ const PatientDashboard = () => {
                                       </div>
                                     </td>
                                   </tr> */}
+=======
+                                  {patientBookings.length > 0 ? (
+                                    patientBookings?.map((booking, index) => (
+                                      <tr key={index}>
+                                        <td>
+                                          <h2 className="table-avatar">
+                                            <a
+                                              href={`DoctorProfile/${booking.doctorId._id}`}
+                                              className="avatar avatar-sm mr-2"
+                                            >
+                                              <img
+                                                className="avatar-img rounded-circle"
+                                                src={`${API_URL}/${booking.doctorId.avatar}`}
+                                                alt="Doctor Avatar"
+                                              />
+                                            </a>
+                                            <a
+                                              href={`DoctorProfile/${booking.doctorId._id}`}
+                                            >
+                                              {booking.doctorId.username}
+                                              <span>
+                                                {" "}
+                                                {booking.doctorId
+                                                  .servicesAndSpecialization
+                                                  ?.specializations?.[0] ||
+                                                  "Services not available"}
+                                              </span>
+                                            </a>
+                                          </h2>
+                                        </td>
+                                        <td>
+                                          {dayjs(
+                                            booking.appointmentDate
+                                          ).format("DD MMM YYYY")}{" "}
+                                          <span className="d-block text-info">
+                                            {dayjs(
+                                              booking.time,
+                                              "HH:mm"
+                                            ).format("hh:mm A")}
+                                          </span>
+                                        </td>
+                                        <td>
+                                          {dayjs(booking.bookingDate).format(
+                                            "DD MMM YYYY"
+                                          )}
+                                        </td>
+                                        <td>${booking.amount}</td>
+                                        <td>
+                                          {dayjs(booking.bookingDate)
+                                            .add(2, "days")
+                                            .format("DD MMM YYYY")}
+                                        </td>
+                                        <td>
+                                          <span
+                                            className={`badge badge-pill ${
+                                              booking.status === "Pending"
+                                                ? "bg-warning-light text-warning"
+                                                : booking.status === "Confirm"
+                                                ? "bg-success-light text-success"
+                                                : booking.status === "Cancelled"
+                                                ? "bg-danger-light text-danger"
+                                                : ""
+                                            }`}
+                                          >
+                                            {booking.status}
+                                          </span>
+                                        </td>
+                                        <td className="text-right">
+                                          <div className="table-action">
+                                            <a
+                                              href="javascript:void(0);"
+                                              className="btn btn-sm bg-primary-light"
+                                            >
+                                              <i className="fas fa-print" />{" "}
+                                              Print
+                                            </a>
+                                            <a
+                                              href={`BookingDetails/${booking._id}`}
+                                              className="btn btn-sm bg-info-light"
+                                            >
+                                              <i className="far fa-eye" /> View
+                                            </a>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  ) : (
+                                    <tr>
+                                      <td colSpan="6" className="text-center">
+                                        No Appointments.
+                                      </td>
+                                    </tr>
+                                  )}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                                 </tbody>
                               </table>
                             </div>

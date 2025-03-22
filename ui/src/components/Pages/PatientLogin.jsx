@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+<<<<<<< HEAD
 import { setForm } from "../redux/features/patientSlices/loginSlice";
 import { useNavigate } from "react-router-dom";
 import { patientLogin } from "../redux/thunks/thunks";
@@ -15,10 +16,37 @@ const PatientLogin = () => {
     if (isAuthenticated) {
       navigate("/PatientDashboard");
     }
+=======
+import { useNavigate } from "react-router-dom";
+import {
+  usePatientLoginMutation,
+  useVerifyPatientTokenQuery,
+} from "../redux/features/patient/patientApi";
+import {
+  setAuthenticated,
+  setLoginForm,
+} from "../redux/features/patient/patientSlice";
+import { toast } from "react-toastify";
+
+const PatientLogin = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loginForm } = useSelector((state) => state.patient);
+  const [patientLogin, { isLoading, isSuccess, error }] =
+    usePatientLoginMutation();
+  const { data: patientTokenData, isFetching: isPatientVerifying } =
+    useVerifyPatientTokenQuery();
+
+  const isAuthenticated = patientTokenData?.isAuthenticated;
+
+  useEffect(() => {
+    if (isAuthenticated) navigate("/Search");
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+<<<<<<< HEAD
     dispatch(setForm({ [name]: value }));
   };
 
@@ -26,6 +54,30 @@ const PatientLogin = () => {
     e.preventDefault();
     dispatch(patientLogin(form));
   };
+=======
+    dispatch(setLoginForm({ [name]: value }));
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Login successful!");
+      dispatch(setAuthenticated(true));
+    }
+    if (error) {
+      toast.error(error.data?.message || "Login failed");
+    }
+  }, [isSuccess, error, dispatch]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await patientLogin(loginForm);
+    } catch (error) {
+      toast.error(error.data?.message || "Login failed");
+    }
+  };
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
@@ -57,7 +109,11 @@ const PatientLogin = () => {
                             type="email"
                             name="email"
                             className="form-control floating"
+<<<<<<< HEAD
                             value={form.email}
+=======
+                            value={loginForm.email}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                             onChange={handleInputChange}
                             required
                           />
@@ -68,7 +124,11 @@ const PatientLogin = () => {
                             type="password"
                             name="password"
                             className="form-control floating"
+<<<<<<< HEAD
                             value={form.password}
+=======
+                            value={loginForm.password}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                             onChange={handleInputChange}
                             required
                           />

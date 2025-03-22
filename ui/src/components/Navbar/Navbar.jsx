@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
 import { Link } from "react-router-dom";
 import LoginModel from "../Pages/LoginModel";
 import API_URL from "../../config/apiConfig";
@@ -12,6 +13,64 @@ const Navbar = ({
 }) => {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+=======
+import { Link, useNavigate } from "react-router-dom"; // Updated import to useNavigate
+import LoginModel from "../Pages/LoginModel";
+import API_URL from "../../config/apiConfig";
+import {
+  useGetAdminDataQuery,
+  useVerifyAdminTokenQuery,
+  useAdminLogoutMutation,
+  adminApi,
+} from "../redux/features/admin/adminApi";
+import {
+  doctorApi,
+  useDoctorLogoutMutation,
+  useFetchDoctorDataQuery,
+  useVerifyDoctorTokenQuery,
+} from "../redux/features/doctor/doctorApi";
+import {
+  patientApi,
+  useFetchPatientDataQuery,
+  usePatientLogoutMutation,
+  useVerifyPatientTokenQuery,
+} from "../redux/features/patient/patientApi";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate(); // For redirecting after logout
+  const dispatch = useDispatch();
+
+  // Admin queries and mutations
+  const { data: adminTokenData, isFetching: isadminVerifying } =
+    useVerifyAdminTokenQuery();
+  const { data: adminData, isLoading: adminDataLoading } =
+    useGetAdminDataQuery();
+  const [adminLogout] = useAdminLogoutMutation();
+  const [doctorLogout] = useDoctorLogoutMutation();
+  const [patientLogout] = usePatientLogoutMutation();
+
+  // Doctor queries and mutations
+  const { data: doctorTokenData, isFetching: isdoctorVerifying } =
+    useVerifyDoctorTokenQuery();
+  const { data: doctorData, isLoading: doctorDataLoading } =
+    useFetchDoctorDataQuery();
+
+  // Patient queries and mutations
+  const { data: patientTokenData, isFetching: ispatientVerifying } =
+    useVerifyPatientTokenQuery();
+  const { data: patientData, isLoading: patientDataLoading } =
+    useFetchPatientDataQuery(undefined, {
+      refetchOnMountOrArgChange: true,
+    });
+
+  const adminAuthenticated = adminTokenData?.isAuthenticated || false;
+  const doctorAuthenticated = doctorTokenData?.isAuthenticated || false;
+  const patientAuthenticated = patientTokenData?.isAuthenticated || false;
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   const [menuOptions, setMenuOptions] = useState({
     img: "",
     dashboard_link: "",
@@ -19,6 +78,7 @@ const Navbar = ({
     name: "",
     role: "",
   });
+<<<<<<< HEAD
   const { doctorData = {}, isLoading } = useSelector(
     (state) => state.doctorData
   );
@@ -69,22 +129,101 @@ const Navbar = ({
       // Show admin settings if no doctor or patient is authenticated
       setMenuOptions({
         img: `${API_URL}/${adminData?.avatar}`,
+=======
+
+  useEffect(() => {
+    if (adminAuthenticated) {
+      setMenuOptions({
+        img: adminData?.avatar
+          ? `${API_URL}/${adminData?.avatar}`
+          : "assets/img/admins/qamar.jpeg",
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
         dashboard_link: "/AdminDashboard",
         profile_link: "/AdminProfileSettings",
         name: `${adminData?.username}`,
         role: "Admin",
       });
+<<<<<<< HEAD
+=======
+    } else if (doctorAuthenticated) {
+      setMenuOptions({
+        img: doctorData?.data?.avatar
+          ? `${API_URL}/${doctorData?.data?.avatar}`
+          : "assets/img/doctors/doctor-thumb-02.jpg",
+        dashboard_link: "/DoctorDashboard",
+        profile_link: "/DoctorProfileSettings",
+        name: `${doctorData?.data?.username}`,
+        role: "Doctor",
+      });
+    } else if (patientAuthenticated) {
+      setMenuOptions({
+        img: patientData?.avatar
+          ? `${API_URL}/${patientData.avatar}`
+          : "assets/img/patients/patient.jpg",
+        dashboard_link: "/PatientDashboard",
+        profile_link: "/ProfileSettings",
+        name: `${patientData?.name}`,
+        role: "Patient",
+      });
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
     }
   }, [
     adminAuthenticated,
     doctorAuthenticated,
     patientAuthenticated,
+<<<<<<< HEAD
     doctorData,
     adminData,
   ]);
   if (isLoading || isAdminLoading) {
     return <div>Loading...</div>;
   }
+=======
+    adminData,
+    doctorData,
+    patientData,
+  ]);
+
+  const isRoleAuthenticated = () => {
+    return adminAuthenticated || doctorAuthenticated || patientAuthenticated;
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault(); // Prevent default Link navigation
+    try {
+      if (adminAuthenticated) {
+        await adminLogout().unwrap();
+        // Invalidate the VerifyAdminToken tag
+        dispatch(adminApi.util.resetApiState());
+        toast.success("Admin logged out successfully!");
+        navigate("/AdminLogin", { replace: true });
+      } else if (doctorAuthenticated) {
+        await doctorLogout().unwrap();
+        // Invalidate the VerifyAdminToken tag
+        dispatch(doctorApi.util.resetApiState());
+        toast.success("Doctor logged out successfully!");
+        navigate("/DoctorLogin", { replace: true }); // Assuming Doctor login route
+      } else if (patientAuthenticated) {
+        await patientLogout().unwrap();
+        // Invalidate the VerifyAdminToken tag
+        dispatch(patientApi.util.resetApiState());
+        toast.success("Patient logged out successfully!");
+        navigate("/PatientLogin", { replace: true }); // Assuming Patient login route
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error(error?.data?.message || "Logout failed. Please try again.");
+    }
+  };
+
+  const openPopup = () => setIsOpen(true);
+  const closePopup = () => setIsOpen(false);
+  const handleSubmit = () => {
+    console.log("Submit button clicked");
+    closePopup();
+  };
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       <header className="header">
@@ -118,7 +257,11 @@ const Navbar = ({
               <li>
                 <Link to="/">Home</Link>
               </li>
+<<<<<<< HEAD
               <li className="has-submenu active">
+=======
+              <li className="has-submenu ">
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                 <Link to="#">
                   Doctors <i className="fas fa-chevron-down" />
                 </Link>
@@ -257,9 +400,13 @@ const Navbar = ({
                 <p className="contact-info-header"> +1 315 369 5943</p>
               </div>
             </li>
+<<<<<<< HEAD
             {adminAuthenticated ||
             patientAuthenticated ||
             doctorAuthenticated ? (
+=======
+            {isRoleAuthenticated() ? (
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
               <li className="nav-item dropdown has-arrow logged-item">
                 <a
                   href="#"
@@ -294,7 +441,10 @@ const Navbar = ({
                       <p className="text-muted mb-0">{menuOptions.role}</p>
                     </div>
                   </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                   {menuOptions.dashboard_link && (
                     <Link
                       className="dropdown-item"
@@ -303,7 +453,10 @@ const Navbar = ({
                       Dashboard
                     </Link>
                   )}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                   {menuOptions.profile_link && (
                     <Link
                       className="dropdown-item"
@@ -312,9 +465,19 @@ const Navbar = ({
                       Profile Settings
                     </Link>
                   )}
+<<<<<<< HEAD
                   <a className="dropdown-item" href="Login">
                     Logout
                   </a>
+=======
+                  <Link
+                    className="dropdown-item"
+                    to="#" // No navigation needed, handled by onClick
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Link>
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                 </div>
               </li>
             ) : (

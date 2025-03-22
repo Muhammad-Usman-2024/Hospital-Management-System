@@ -5,7 +5,11 @@ import ErrorHandler from "../../middlewares/error.js";
 
 // Register Patient
 const PatientRegister = catchAsyncErrors(async (req, res, next) => {
+<<<<<<< HEAD
   const { name, email, password } = req.body;
+=======
+  const { name, email, password, doctorId } = req.body;
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
   if (!name || !email || !password) {
     return next(new ErrorHandler("All fields are required.", 400));
@@ -16,10 +20,15 @@ const PatientRegister = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Patient already registered.", 400));
   }
 
+<<<<<<< HEAD
+=======
+  // 👇 Doctor ID tabhi set hoga agar doctor dashboard se register ho raha hai
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   const patient = new Patient({
     name,
     email,
     password,
+<<<<<<< HEAD
   });
   await patient.save();
 
@@ -37,10 +46,21 @@ const PatientRegister = catchAsyncErrors(async (req, res, next) => {
   //   maxAge: 24 * 60 * 60 * 1000, // 1 day
   // });
 
+=======
+    registeredBy: doctorId || null, // 🔥 Agar doctorId nahi mila toh NULL save karein
+  });
+
+  await patient.save();
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   res.status(201).json({
     message: "Patient registered successfully.",
     success: true,
     error: false,
+<<<<<<< HEAD
+=======
+    patient,
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   });
 });
 
@@ -84,6 +104,27 @@ const PatientLogin = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Logout Patient
+const PatientLogout = catchAsyncErrors(async (req, res, next) => {
+  // Clear the patientToken cookie
+  res.cookie("patientToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "production", // Match your login settings
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0), // Expire immediately
+  });
+
+  res.status(200).json({
+    success: true,
+    error: false,
+    message: "Patient logged out successfully.",
+  });
+});
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 // Get Patient data
 const PatientDetails = catchAsyncErrors(async (req, res, next) => {
   const patient = await Patient.findById(req.patientId).select("-password");
@@ -154,4 +195,33 @@ const updatePatientProfile = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
+<<<<<<< HEAD
 export { PatientRegister, PatientLogin, PatientDetails, updatePatientProfile };
+=======
+const getDoctorRegisteredPatients = async (req, res) => {
+  try {
+    const { doctorId } = req.query;
+    console.log("this is the doctorId ", doctorId);
+
+    if (!doctorId) {
+      return res.status(400).json({ message: "Doctor ID is required" });
+    }
+
+    const patients = await Patient.find({ registeredBy: doctorId });
+    console.log("these are the patients:", patients);
+    res.status(200).json(patients);
+  } catch (error) {
+    console.error("Error fetching registered patients:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export {
+  PatientRegister,
+  PatientLogin,
+  PatientLogout,
+  PatientDetails,
+  updatePatientProfile,
+  getDoctorRegisteredPatients,
+};
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f

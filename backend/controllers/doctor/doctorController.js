@@ -73,6 +73,27 @@ const DoctorLogin = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Logout Doctor
+const DoctorLogout = catchAsyncErrors(async (req, res, next) => {
+  // Clear the doctorToken cookie
+  res.cookie("doctorToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "production", // Match your login settings
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0), // Expire immediately
+  });
+
+  res.status(200).json({
+    success: true,
+    error: false,
+    message: "Doctor logged out successfully.",
+  });
+});
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 // Get Doctor data
 const DoctorDetails = catchAsyncErrors(async (req, res, next) => {
   const doctor = await Doctor.findById(req.doctorId).select("-password");
@@ -101,6 +122,7 @@ const AllDoctorsData = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+<<<<<<< HEAD
 // Update Doctor Profile
 // const updateDoctorProfile = catchAsyncErrors(async (req, res, next) => {
 //   const { doctorId } = req; // Fetch id from route parameter
@@ -198,6 +220,8 @@ const AllDoctorsData = catchAsyncErrors(async (req, res, next) => {
 //     next(new ErrorHandler(error.message, 500));
 //   }
 // });
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 const updateDoctorProfile = catchAsyncErrors(async (req, res, next) => {
   const { doctorId } = req; // Fetch id from route parameter
   let updateData = req.body; // Initialize updateData with request body
@@ -304,6 +328,10 @@ const updateDoctorProfile = catchAsyncErrors(async (req, res, next) => {
 export {
   DoctorRegister,
   DoctorLogin,
+<<<<<<< HEAD
+=======
+  DoctorLogout,
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   DoctorDetails,
   AllDoctorsData,
   updateDoctorProfile,

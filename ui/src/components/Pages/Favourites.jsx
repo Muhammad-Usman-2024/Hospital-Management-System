@@ -1,4 +1,8 @@
 import React from "react";
+<<<<<<< HEAD
+=======
+import PatientSidebar from "./PatientSidebar";
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
 const Favourites = () => {
   return (
@@ -31,6 +35,7 @@ const Favourites = () => {
           <div className="container-fluid">
             <div className="row">
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
+<<<<<<< HEAD
                 <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
@@ -98,6 +103,9 @@ const Favourites = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <PatientSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
               </div>
               <div className="col-md-7 col-lg-8 col-xl-9">
                 <div className="row row-grid">

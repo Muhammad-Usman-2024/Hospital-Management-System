@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -6,10 +7,27 @@ import {
   resetFormData,
   updateFormData,
 } from "../redux/features/commonSlices/bookingSlice";
+=======
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { toast } from "react-toastify";
+import emailjs from "@emailjs/browser";
+import { useFetchPatientDataQuery } from "../redux/features/patient/patientApi";
+import { useFetchAllDoctorsDataQuery } from "../redux/features/doctor/doctorApi";
+import { useCreateBookingMutation } from "../redux/features/appointments/appointmentApi";
+import {
+  completeBooking,
+  resetFormData,
+  updateFormData,
+} from "../redux/features/appointments/appointmentSlice";
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
 const Booking = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+<<<<<<< HEAD
   const { patientData = {} } = useSelector((state) => state.patientData);
   const patientId = patientData?._id;
   const { formData, isLoading, success, error } = useSelector(
@@ -74,6 +92,92 @@ const Booking = () => {
       navigate("/PatientDashboard");
     }
   }, [success]);
+=======
+  const { doctorId } = useParams();
+  const [createBooking, { isLoading, isSuccess, error }] =
+    useCreateBookingMutation();
+
+  // 🌟 Extract Redux State
+  const { data: patientData, isLoading: ispatientFetching } =
+    useFetchPatientDataQuery();
+  const { formData } = useSelector((state) => state.appointment);
+  const { data: allDoctors, isLoading: isallDoctorsFetching } =
+    useFetchAllDoctorsDataQuery();
+  const doctorsData = allDoctors?.data;
+  // 🌟 Derived Data
+  const doctorData =
+    doctorsData.find((doctor) => doctor._id === doctorId) || {};
+  const patientId = patientData?._id;
+
+  // 🌟 Set Form Data on Mount
+  useEffect(() => {
+    if (doctorId)
+      dispatch(updateFormData({ name: "doctorId", value: doctorId }));
+    if (patientId)
+      dispatch(updateFormData({ name: "patientId", value: patientId }));
+  }, [doctorId, patientId, dispatch]);
+
+  // 🌟 Send Booking Confirmation Email
+  const sendBookingEmail = async () => {
+    if (!doctorData.email) {
+      console.error("Doctor email missing. Email not sent.");
+      return;
+    }
+
+    try {
+      await emailjs.send(
+        "service_urux88x",
+        "template_zbed7di",
+        {
+          from_name: patientData.name,
+          to_name: doctorData.username,
+          from_email: patientData.email,
+          to_email: doctorData.email,
+          message: `You have a new booking with name ${patientData.name}`,
+        },
+        "ehHcxWe090MKl-GFY"
+      );
+      toast.success("Booking confirmation email sent.");
+    } catch (error) {
+      console.error("Email error:", error);
+      toast.error("Failed to send confirmation email.");
+    }
+  };
+
+  // 🌟 Handle Form Submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const bookingData = {
+      ...formData,
+      bookingDate: new Date().toISOString(),
+    };
+
+    try {
+      await createBooking(bookingData).unwrap();
+      navigate("/PatientDashboard");
+    } catch (err) {
+      console.error("Booking failed:", err);
+    }
+  };
+
+  // 🌟 Handle Success/Error
+  useEffect(() => {
+    if (isSuccess) {
+      sendBookingEmail();
+      toast.success("Booking submitted successfully.");
+      dispatch(completeBooking());
+      dispatch(resetFormData());
+    }
+    if (error) {
+      toast.error(error.data?.message || "Error while booking.");
+    }
+  }, [isSuccess, error, dispatch]);
+
+  const handleInputChange = (e) => {
+    dispatch(updateFormData({ name: e.target.name, value: e.target.value }));
+  };
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
@@ -110,6 +214,7 @@ const Booking = () => {
                       <h4 className="mb-4 text-center">
                         Book Doctor Appointment
                       </h4>
+<<<<<<< HEAD
 
                       {/* <div className="form-group">
                         <div className="change-avatar">
@@ -165,6 +270,8 @@ const Booking = () => {
                         />
                       </div>
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                       {/* Amount */}
                       <div className="form-group mb-3">
                         <label>Amount:</label>
@@ -252,6 +359,7 @@ const Booking = () => {
                           onChange={handleInputChange}
                         ></textarea>
                       </div>
+<<<<<<< HEAD
 
                       {/* Phone Number */}
                       <div className="form-group mb-4">
@@ -266,6 +374,8 @@ const Booking = () => {
                         />
                       </div>
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                       {/* Submit and Reset Buttons */}
                       <div className="d-flex justify-content-between">
                         <button
@@ -275,6 +385,7 @@ const Booking = () => {
                         >
                           {isLoading ? "Booking..." : "Save & Send"}
                         </button>
+<<<<<<< HEAD
                         <button
                           type="button"
                           className="btn btn-secondary"
@@ -286,6 +397,12 @@ const Booking = () => {
 
                       {/* Success/Error Messages */}
                       {success && (
+=======
+                      </div>
+
+                      {/* Success/Error Messages */}
+                      {isSuccess && (
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                         <p className="mt-3 text-success">
                           Doctor booked successfully!
                         </p>

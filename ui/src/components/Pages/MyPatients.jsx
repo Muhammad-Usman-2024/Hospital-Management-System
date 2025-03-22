@@ -1,6 +1,23 @@
 import React from "react";
+<<<<<<< HEAD
 
 const MyPatients = () => {
+=======
+import DoctorSidebar from "./DoctorSidebar";
+import { useFetchBookingsQuery } from "../redux/features/appointments/appointmentApi";
+import { useFetchDoctorDataQuery } from "../redux/features/doctor/doctorApi";
+
+const MyPatients = () => {
+  const { data: singleDoctorData, isLoading: isdoctorFetching } =
+    useFetchDoctorDataQuery();
+  const { data: bookingsData, isLoading: isbookingFetching } =
+    useFetchBookingsQuery({
+      userId: singleDoctorData?.data?._id,
+      role: "allpatients",
+    });
+  const allPatients = bookingsData?.AllPatientsBookings || [];
+  console.log("these are all the patients:", allPatients);
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
@@ -32,6 +49,7 @@ const MyPatients = () => {
             <div className="row">
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
                 {/* Profile Sidebar */}
+<<<<<<< HEAD
                 <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
@@ -125,6 +143,9 @@ const MyPatients = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <DoctorSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                 {/* /Profile Sidebar */}
               </div>
               <div className="col-md-7 col-lg-8 col-xl-9">

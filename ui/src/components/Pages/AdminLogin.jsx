@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+<<<<<<< HEAD
 import { setForm } from "../redux/features/adminSlices/loginSlice";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -13,23 +14,65 @@ const AdminLogin = () => {
   } = useSelector((state) => state.admin);
 
   //Navigate to Dashboard after loggedIn
+=======
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { resetForm, setForm } from "../redux/features/admin/adminSlice";
+import {
+  useAdminLoginMutation,
+  useVerifyAdminTokenQuery,
+} from "../redux/features/admin/adminApi";
+import { toast } from "react-toastify";
+const AdminLogin = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { form } = useSelector((state) => state.admin);
+
+  const [adminLogin, { isLoading }] = useAdminLoginMutation();
+  const { data, isFetching } = useVerifyAdminTokenQuery();
+
+  const isAuthenticated = data?.isAuthenticated || false;
+
+  // Redirect to dashboard if authenticated
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/AdminDashboard");
     }
   }, [isAuthenticated, navigate]);
 
+<<<<<<< HEAD
   //Handle Onchange functionality of all input fields
+=======
+  // Handle input changes
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(setForm({ [name]: value }));
   };
 
   // Handle form submission
+<<<<<<< HEAD
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(adminLogin(form));
   };
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await adminLogin(form).unwrap();
+      dispatch(resetForm());
+      toast.success("Login successful!");
+      navigate("/AdminDashboard");
+    } catch (error) {
+      toast.error(error?.data?.message || "Login failed!");
+    }
+  };
+  if (isLoading || isFetching) {
+    return <p>Loading....</p>;
+  }
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
   return (
     <>

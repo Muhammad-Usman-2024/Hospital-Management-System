@@ -8,12 +8,15 @@ const doctorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+<<<<<<< HEAD
     firstName: {
       type: String,
     },
     lastName: {
       type: String,
     },
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
     email: {
       type: String,
       required: true,

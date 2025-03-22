@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+<<<<<<< HEAD
 import {
   resetIsRegistered,
   setForm,
@@ -6,11 +7,23 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { doctorRegister } from "../redux/thunks/thunks";
+=======
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useDoctorRegisterMutation } from "../redux/features/doctor/doctorApi";
+import {
+  resetRegisterForm,
+  setRegisterForm,
+} from "../redux/features/doctor/doctorSlice";
+import { toast } from "react-toastify";
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 const DoctorRegister = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
+<<<<<<< HEAD
   //Extract the "redirect" query parameter
   const searchParams = new URLSearchParams(location.search);
   const redirect = searchParams.get("redirect");
@@ -43,11 +56,46 @@ const DoctorRegister = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(doctorRegister(form));
+=======
+  const searchParams = new URLSearchParams(location.search);
+  const redirect = searchParams.get("redirect");
+
+  const { registerForm } = useSelector((state) => state.doctor);
+  const [doctorRegister, { isLoading, isSuccess, error }] =
+    useDoctorRegisterMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Doctor registration successful!");
+      dispatch(resetRegisterForm());
+      navigate(
+        redirect === "adminDashboard" ? "/AdminDashboard" : "/DoctorDashboard"
+      );
+    }
+  }, [isSuccess, redirect, navigate, dispatch]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    dispatch(setRegisterForm({ [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await doctorRegister(registerForm).unwrap();
+    } catch (err) {
+      console.error("Registration error:", err);
+      toast.error(err.data?.message || "Registration failed");
+    }
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   };
 
   return (
     <>
+<<<<<<< HEAD
       {/* Main Wrapper */}
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
       <div className="main-wrapper">
         {/* Page Content */}
         <div className="content">
@@ -70,13 +118,21 @@ const DoctorRegister = () => {
                           Register as a <span>Doctor</span>
                         </h3>
                       </div>
+<<<<<<< HEAD
+=======
+                      {isLoading && <p>Loading...</p>}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                       <form onSubmit={handleSubmit}>
                         <div className="form-group form-focus">
                           <input
                             type="text"
                             className="form-control floating"
                             name="username"
+<<<<<<< HEAD
                             value={form.username || ""} // Ensure a fallback value
+=======
+                            value={registerForm.username || ""} // Ensure a fallback value
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                             onChange={handleChange} // Handle input change
                           />
                           <label className="focus-label">Name</label>
@@ -87,7 +143,11 @@ const DoctorRegister = () => {
                             type="email"
                             className="form-control floating"
                             name="email"
+<<<<<<< HEAD
                             value={form.email || ""} // Ensure a fallback value
+=======
+                            value={registerForm.email || ""} // Ensure a fallback value
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                             onChange={handleChange} // Handle input change
                           />
                           <label className="focus-label">Email</label>
@@ -98,14 +158,21 @@ const DoctorRegister = () => {
                             type="password"
                             className="form-control floating"
                             name="password"
+<<<<<<< HEAD
                             value={form.password || ""} // Ensure a fallback value
+=======
+                            value={registerForm.password || ""} // Ensure a fallback value
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                             onChange={handleChange} // Handle input change
                           />
                           <label className="focus-label">Password</label>
                         </div>
 
+<<<<<<< HEAD
                         {error && <div className="text-danger">{error}</div>}
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                         <button
                           className="btn btn-primary btn-block btn-lg login-btn"
                           type="submit"

@@ -1,4 +1,8 @@
 import React from "react";
+<<<<<<< HEAD
+=======
+import DoctorSidebar from "./DoctorSidebar";
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
 const Appointments = () => {
   return (
@@ -28,6 +32,7 @@ const Appointments = () => {
           <div class="container-fluid">
             <div class="row">
               <div class="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
+<<<<<<< HEAD
                 <div class="profile-sidebar">
                   <div class="widget-profile pro-widget-content">
                     <div class="profile-info-widget">
@@ -122,6 +127,9 @@ const Appointments = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <DoctorSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
               </div>
 
               <div class="col-md-7 col-lg-8 col-xl-9">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
+<<<<<<< HEAD
 import {
   clearFormData,
   updateFormData,
@@ -45,6 +46,65 @@ const AdminProfileSettings = () => {
   if (isAdminLoading) {
     return <div>Loading...</div>;
   }
+=======
+
+import API_URL from "../../config/apiConfig";
+import {
+  clearProfileFormData,
+  updateProfileFormData,
+} from "../redux/features/admin/adminSlice";
+import {
+  useGetAdminDataQuery,
+  useUpdateAdminProfileMutation,
+} from "../redux/features/admin/adminApi";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import AdminSidebar from "./AdminSidebar";
+
+const AdminProfileSettings = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const profileFormData = useSelector((state) => state.admin.profileFormData);
+  const { data: adminData, refetch } = useGetAdminDataQuery();
+
+  // Local state for file preview
+  const [fileUrl, setFileUrl] = useState("");
+
+  // RTK Query mutation hook
+  const [updateAdminProfile, { isLoading }] = useUpdateAdminProfileMutation();
+
+  // Handle input change and update Redux store
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    dispatch(updateProfileFormData({ key: name, value }));
+  };
+
+  // Handle file upload (for avatar)
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const previewUrl = URL.createObjectURL(selectedFile);
+      setFileUrl(previewUrl); // Set preview image
+      dispatch(updateProfileFormData({ key: "avatar", value: selectedFile })); // Store file in Redux
+    }
+  };
+
+  // Handle form submission with toast notifications
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await updateAdminProfile(profileFormData).unwrap();
+      refetch(); // Refresh data manually after update
+      toast.success("Profile updated successfully!");
+      navigate("/AdminDashboard");
+      dispatch(clearProfileFormData());
+    } catch (error) {
+      console.log("Error in profile settings", error);
+      toast.error(error?.data?.message || "Failed to update profile!");
+    }
+  };
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
@@ -73,6 +133,7 @@ const AdminProfileSettings = () => {
         {/* Page Content */}
         <div className="content">
           <div className="container-fluid">
+<<<<<<< HEAD
             <div className="row">
               {/* Profile Sidebar */}
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
@@ -139,6 +200,14 @@ const AdminProfileSettings = () => {
                   </div>
                 </div>
               </div>
+=======
+            <div className="row d-flex">
+              {/* Profile Sidebar */}
+              <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
+                <AdminSidebar />
+              </div>
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
               {/* /Profile Sidebar */}
               <div className="col-md-7 col-lg-8 col-xl-9">
                 <div className="card">
@@ -180,7 +249,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="username"
+<<<<<<< HEAD
                           value={formData.username}
+=======
+                          value={profileFormData.username}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -190,7 +263,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="firstName"
+<<<<<<< HEAD
                           value={formData.firstName}
+=======
+                          value={profileFormData.firstName}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -201,7 +278,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="lastName"
+<<<<<<< HEAD
                           value={formData.lastName}
+=======
+                          value={profileFormData.lastName}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -212,7 +293,11 @@ const AdminProfileSettings = () => {
                           type="date"
                           className="form-control"
                           name="dateOfBirth"
+<<<<<<< HEAD
                           value={formData.dateOfBirth}
+=======
+                          value={profileFormData.dateOfBirth}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -223,7 +308,11 @@ const AdminProfileSettings = () => {
                           type="email"
                           className="form-control"
                           name="email"
+<<<<<<< HEAD
                           value={formData.email}
+=======
+                          value={profileFormData.email}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -233,7 +322,11 @@ const AdminProfileSettings = () => {
                           type="password"
                           className="form-control"
                           name="password"
+<<<<<<< HEAD
                           value={formData.password}
+=======
+                          value={profileFormData.password}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -244,7 +337,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="phoneNumber"
+<<<<<<< HEAD
                           value={formData.phoneNumber}
+=======
+                          value={profileFormData.phoneNumber}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -255,7 +352,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="address"
+<<<<<<< HEAD
                           value={formData.address}
+=======
+                          value={profileFormData.address}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -266,7 +367,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="city"
+<<<<<<< HEAD
                           value={formData.city}
+=======
+                          value={profileFormData.city}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -277,7 +382,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="state"
+<<<<<<< HEAD
                           value={formData.state}
+=======
+                          value={profileFormData.state}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -288,7 +397,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="zipCode"
+<<<<<<< HEAD
                           value={formData.zipCode}
+=======
+                          value={profileFormData.zipCode}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -299,7 +412,11 @@ const AdminProfileSettings = () => {
                           type="text"
                           className="form-control"
                           name="country"
+<<<<<<< HEAD
                           value={formData.country}
+=======
+                          value={profileFormData.country}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                           onChange={handleInputChange}
                         />
                       </div>
@@ -310,7 +427,11 @@ const AdminProfileSettings = () => {
                           type="submit"
                           className="btn btn-primary submit-btn"
                         >
+<<<<<<< HEAD
                           Save Changes
+=======
+                          {isLoading ? "Updating..." : "Update Profile"}
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                         </button>
                       </div>
                     </form>

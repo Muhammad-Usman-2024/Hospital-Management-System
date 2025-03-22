@@ -1,4 +1,8 @@
 import React from "react";
+<<<<<<< HEAD
+=======
+import DoctorSidebar from "./DoctorSidebar";
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
 const ScheduleTimings = () => {
   return (
@@ -32,6 +36,7 @@ const ScheduleTimings = () => {
             <div className="row">
               <div className="col-md-5 col-lg-4 col-xl-3 theiaStickySidebar">
                 {/* Profile Sidebar */}
+<<<<<<< HEAD
                 <div className="profile-sidebar">
                   <div className="widget-profile pro-widget-content">
                     <div className="profile-info-widget">
@@ -125,6 +130,9 @@ const ScheduleTimings = () => {
                     </nav>
                   </div>
                 </div>
+=======
+                <DoctorSidebar />
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
                 {/* /Profile Sidebar */}
               </div>
               <div className="col-md-7 col-lg-8 col-xl-9">

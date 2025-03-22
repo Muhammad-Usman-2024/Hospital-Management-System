@@ -52,6 +52,7 @@ import VoiceCall from "./components/Pages/VoiceCall";
 import AdminLogin from "./components/Pages/AdminLogin";
 import DoctorLogin from "./components/Pages/DoctorLogin";
 import PatientLogin from "./components/Pages/PatientLogin";
+<<<<<<< HEAD
 import ProtectedRoute from "./components/Pages/ProtectedRoute";
 import AdminDashboard from "./components/Pages/AdminDashboard";
 import { ToastContainer, Bounce } from "react-toastify";
@@ -65,10 +66,26 @@ import {
   verifyDoctorToken,
   verifyPatientToken,
 } from "./components/redux/thunks/thunks";
+=======
+
+import AdminDashboard from "./components/Pages/AdminDashboard";
+import { ToastContainer, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// import {
+//   fetchAdminData,
+//   fetchAllDoctorsData,
+//   fetchDoctorData,
+//   fetchPatientData,
+//   verifyAdminToken,
+//   verifyDoctorToken,
+//   verifyPatientToken,
+// } from "./components/redux/thunks/thunks";
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
 import AdminProfileSettings from "./components/Pages/AdminProfileSettings";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
+<<<<<<< HEAD
 
 function App() {
   const dispatch = useDispatch();
@@ -111,6 +128,35 @@ function App() {
   useEffect(() => {
     dispatch(fetchPatientData());
   }, [dispatch]);
+=======
+import DoctorRegisteredPtients from "./components/Pages/DoctorRegisteredPatients";
+import ProtectedLayout from "./components/Pages/ProtectedRoute";
+
+function App() {
+  // const dispatch = useDispatch();
+  // const adminAuthenticated = useSelector(
+  //   (state) => state.admin.isAuthenticated
+  // );
+  // const doctorAuthenticated = useSelector(
+  //   (state) => state.doctorLogin.isAuthenticated
+  // );
+  // const patientAuthenticated = useSelector(
+  //   (state) => state.patientLogin.isAuthenticated
+  // );
+
+  // useEffect(() => {
+  //   if (adminAuthenticated) dispatch(verifyAdminToken());
+  //   if (doctorAuthenticated) dispatch(verifyDoctorToken());
+  //   if (patientAuthenticated) dispatch(verifyPatientToken());
+  // }, [dispatch, adminAuthenticated, doctorAuthenticated, patientAuthenticated]);
+
+  // useEffect(() => {
+  //   dispatch(fetchAllDoctorsData());
+  //   dispatch(fetchAdminData());
+  //   dispatch(fetchDoctorData());
+  //   dispatch(fetchPatientData());
+  // }, [dispatch]);
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 
   return (
     <>
@@ -128,6 +174,7 @@ function App() {
         transition={Bounce}
       />
       <BrowserRouter>
+<<<<<<< HEAD
         <Navbar
           adminAuthenticated={adminAuthenticated}
           doctorAuthenticated={doctorAuthenticated}
@@ -228,6 +275,91 @@ function App() {
             <Route path="/Term&Condition" element={<TermCondition />} />
             <Route path="/VideoCall" element={<VideoCall />} />
             <Route path="/VoiceCall" element={<VoiceCall />} />
+=======
+        <Navbar />
+        <div className="App">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/AdminLogin" element={<AdminLogin />} />
+            <Route path="/DoctorLogin" element={<DoctorLogin />} />
+            <Route path="/PatientLogin" element={<PatientLogin />} />
+            <Route path="/DoctorRegister" element={<DoctorRegister />} />
+            <Route path="/Register" element={<Register />} />
+            <Route path="/Components" element={<Components />} />
+            <Route path="/Calendar" element={<Calendar />} />
+            <Route path="/AddBilling" element={<AddBilling />} />
+            <Route path="/AddPrescription" element={<AddPrescription />} />
+            <Route path="/BlankPage" element={<BlankPage />} />
+            <Route path="/Term&Condition" element={<TermCondition />} />
+            <Route path="/VideoCall" element={<VideoCall />} />
+            <Route path="/VoiceCall" element={<VoiceCall />} />
+            <Route path="/EditBilling" element={<EditBilling />} />
+            <Route path="/EditPrescription" element={<EditPrescription />} />
+            <Route path="/ForgotPassword" element={<ForgotPassword />} />
+            <Route path="/InvoiceView" element={<InvoiceView />} />
+            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+
+            {/* Protected Routes for Admin */}
+            <Route
+              element={
+                <ProtectedLayout role="admin" redirectTo="/AdminLogin" />
+              }
+            >
+              <Route path="/AdminDashboard" element={<AdminDashboard />} />
+              <Route
+                path="/AdminProfileSettings"
+                element={<AdminProfileSettings />}
+              />
+            </Route>
+
+            {/* Protected Routes for Doctor */}
+            <Route
+              element={
+                <ProtectedLayout role="doctor" redirectTo="/DoctorLogin" />
+              }
+            >
+              <Route path="/DoctorDashboard" element={<DoctorDashboard />} />
+              <Route
+                path="/DoctorPatients"
+                element={<DoctorRegisteredPtients />}
+              />
+              <Route path="/Appointments" element={<Appointments />} />
+              <Route path="/ChatDoctor" element={<ChatDoctor />} />
+              <Route
+                path="/DoctorChangePassword"
+                element={<DoctorChangePassword />}
+              />
+              <Route
+                path="/DoctorProfileSettings"
+                element={<DoctorProfileSettings />}
+              />
+              <Route path="/PatientProfile" element={<PatientProfile />} />
+              <Route path="/Invoices" element={<Invoices />} />
+              <Route path="/MyPatients" element={<MyPatients />} />
+              <Route path="/Reviews" element={<Reviews />} />
+              <Route path="/SocialMedia" element={<SocialMedia />} />
+              <Route path="/ScheduleTimings" element={<ScheduleTimings />} />
+            </Route>
+
+            {/* Protected Routes for Patient */}
+            <Route
+              element={
+                <ProtectedLayout role="patient" redirectTo="/PatientLogin" />
+              }
+            >
+              <Route path="/PatientDashboard" element={<PatientDashboard />} />
+              <Route path="/BookingSuccess" element={<BookingSuccess />} />
+              <Route path="/Booking/:doctorId" element={<Booking />} />
+              <Route path="/ChangePassword" element={<ChangePassword />} />
+              <Route path="/Chat" element={<Chat />} />
+              <Route path="/Checkout" element={<Checkout />} />
+              <Route path="/DoctorProfile" element={<DoctorProfile />} />
+              <Route path="/Favourites" element={<Favourites />} />
+              <Route path="/ProfileSettings" element={<ProfileSettings />} />
+              <Route path="/Search" element={<Search />} />
+            </Route>
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
           </Routes>
         </div>
 

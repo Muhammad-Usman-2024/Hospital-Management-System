@@ -15,6 +15,13 @@ import {
   BookDoctor,
   getBookings,
   updateBookingStatus,
+<<<<<<< HEAD
+=======
+  getDoctorRegisteredPatients,
+  AdminLogout,
+  DoctorLogout,
+  PatientLogout,
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 } from "../controllers/index.js";
 import {
   adminAuthToken,
@@ -26,6 +33,10 @@ const router = express.Router();
 
 // ---- Admin all routes including Post,Get,Put ----
 router.post("/admin-login", AdminLogin);
+<<<<<<< HEAD
+=======
+router.post("/admin-logout", AdminLogout);
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 router.get("/admin-data", adminAuthToken, AdminDetails);
 router.put(
   "/update-admin-profile",
@@ -37,9 +48,16 @@ router.put(
 // ---- Doctor all routes including Post,Get,Put ----
 router.post("/doctor-register", DoctorRegister);
 router.post("/doctor-login", DoctorLogin);
+<<<<<<< HEAD
 router.get("/doctors-data", AllDoctorsData);
 router.get("/doctor-details", doctorAuthToken, DoctorDetails);
 router.patch(
+=======
+router.post("/doctor-logout", DoctorLogout);
+router.get("/doctors-data", AllDoctorsData);
+router.get("/doctor-details", doctorAuthToken, DoctorDetails);
+router.put(
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   "/update-doctor-profile",
   doctorAuthToken,
   uploadFields.fields([
@@ -52,6 +70,10 @@ router.patch(
 // ---- Patient all routes including Post,Get,Put ----
 router.post("/patient-register", PatientRegister);
 router.post("/patient-login", PatientLogin);
+<<<<<<< HEAD
+=======
+router.post("/patient-logout", PatientLogout);
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 router.get("/patient-details", patientAuthToken, PatientDetails);
 router.put(
   "/update-patient-profile",
@@ -59,8 +81,14 @@ router.put(
   uploadFields.fields([{ name: "avatar", maxCount: 1 }]),
   updatePatientProfile
 );
+<<<<<<< HEAD
 
 // ---- Verify Tokens of Admin,Doctor and Patient ----
+=======
+router.get("/doctor-registered-patients", getDoctorRegisteredPatients);
+
+// ----- Verify Tokens of Admin,Doctor and Patient -----
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
 router.get("/admin-verify", adminAuthToken, (req, res) => {
   res.status(200).json({ isAuthenticated: true });
 });

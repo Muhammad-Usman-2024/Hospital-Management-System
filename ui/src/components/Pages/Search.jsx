@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import API_URL from "../../config/apiConfig";
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
 
 const Search = () => {
   const {
@@ -9,6 +10,14 @@ const Search = () => {
     isLoading: isDoctorLoading,
     error: doctorError,
   } = useSelector((state) => state.allDoctorsData);
+=======
+import { useFetchAllDoctorsDataQuery } from "../redux/features/doctor/doctorApi";
+
+const Search = () => {
+  const { data: allDoctors, isLoading: isallDoctorsfetching } =
+    useFetchAllDoctorsDataQuery();
+  const doctorsData = allDoctors?.data;
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   console.log(doctorsData);
 
   const [selectedDate, setSelectedDate] = useState("");
@@ -16,8 +25,11 @@ const Search = () => {
   const [specialistFilter, setSpecialistFilter] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
 
+<<<<<<< HEAD
   // Update filteredDoctors when doctorsData or filters change
 
+=======
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   // Handle Date Change
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
@@ -56,6 +68,7 @@ const Search = () => {
     setFilteredDoctors(filtered);
   };
   useEffect(() => {
+<<<<<<< HEAD
     if (isDoctorLoading === false && doctorsData?.length > 0) {
       filterDoctors();
     }
@@ -69,6 +82,17 @@ const Search = () => {
   //   return <p>Error: {doctorError}</p>;
   // }
 
+=======
+    if (isallDoctorsfetching === false && doctorsData?.length > 0) {
+      filterDoctors();
+    }
+  }, [isallDoctorsfetching, doctorsData, genderFilter, specialistFilter]);
+
+  if (isallDoctorsfetching) {
+    return <p>Loading data...</p>;
+  }
+
+>>>>>>> 8fc9bf617b1b26f2f302fb7b63aa721bd734c63f
   return (
     <>
       {/* Main Wrapper */}
